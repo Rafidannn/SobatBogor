@@ -1,0 +1,15 @@
+/* public/assets/css/style.css */
+/* SobatBogor - Global Stylesheet */
+/* TODO: Full styling implementation in Tugas 4 */
+
+:root {
+    --color-primary:   #16a34a;
+    --color-secondary: #15803d;
+    --color-accent:    #f59e0b;
+    --color-dark:      #1e293b;
+    --color-light:     #f8fafc;
+    --font-main:       'Inter', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-main); background: var(--color-light); color: var(--color-dark); }
