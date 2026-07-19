@@ -6,6 +6,7 @@ require_once ROOT_PATH . '/core/Database.php';
 require_once ROOT_PATH . '/core/Model.php';
 require_once ROOT_PATH . '/core/Controller.php';
 require_once ROOT_PATH . '/core/Router.php';
+require_once ROOT_PATH . '/core/Helpers.php';
 require_once ROOT_PATH . '/middleware/AuthMiddleware.php';
 require_once ROOT_PATH . '/middleware/AdminMiddleware.php';
 

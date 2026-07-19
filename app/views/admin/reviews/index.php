@@ -42,10 +42,17 @@
                                         </div>
                                     </td>
                                     <td style="max-width: 350px;" class="small text-muted">
-                                        <div class="text-wrap">
-                                            "<?= htmlspecialchars($rev['comment'] ?: '(Hanya memberikan rating saja)') ?>"
-                                        </div>
-                                    </td>
+                                         <div class="text-wrap mb-2">
+                                             "<?= htmlspecialchars($rev['comment'] ?: '(Hanya memberikan rating saja)') ?>"
+                                         </div>
+                                         <?php if (!empty($rev['photo_path'])): ?>
+                                             <div class="mt-1">
+                                                 <a href="<?= BASE_URL ?>/<?= htmlspecialchars($rev['photo_path']) ?>" target="_blank" title="Lihat ukuran penuh">
+                                                     <img src="<?= BASE_URL ?>/<?= htmlspecialchars($rev['photo_path']) ?>" alt="Foto Ulasan" style="max-width: 90px; max-height: 90px; border-radius: 8px; object-fit: cover; border: 1px solid var(--gray-200); box-shadow: var(--shadow-sm);">
+                                                 </a>
+                                             </div>
+                                         <?php endif; ?>
+                                     </td>
                                     <td>
                                         <?php if ($rev['is_visible'] == 1): ?>
                                             <span class="badge bg-success-subtle text-success"><i class="fa fa-eye me-1"></i>Tampil</span>

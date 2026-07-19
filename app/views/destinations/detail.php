@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 function formatPriceDetail(string|int|null $price): string {
     if ($price === null || $price == 0) return '<span class="badge bg-success px-3 py-2 fs-6">Gratis</span>';
     return '<strong style="font-size:1.4rem;color:var(--primary);">Rp ' . number_format((float)$price, 0, ',', '.') . '</strong>';
@@ -13,6 +13,9 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
     return $html;
 }
 ?>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
 <!-- Flash Messages -->
 <?php if ($flashMsg): ?>
@@ -178,6 +181,17 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
                         <?= htmlspecialchars($review['comment']) ?>
                     </p>
                     <?php endif; ?>
+                    <?php if (!empty($review['photo_path'])): ?>
+                    <div class="mt-3">
+                        <a href="<?= BASE_URL ?>/<?= htmlspecialchars($review['photo_path']) ?>" target="_blank" title="Lihat foto penuh">
+                            <img src="<?= BASE_URL ?>/<?= htmlspecialchars($review['photo_path']) ?>"
+                                 alt="Foto ulasan"
+                                 style="max-width:100%;max-height:220px;border-radius:10px;object-fit:cover;border:1px solid var(--gray-200);cursor:zoom-in;transition:transform 0.2s;"
+                                 onmouseover="this.style.transform='scale(1.02)'"
+                                 onmouseout="this.style.transform='scale(1)'">
+                        </a>
+                    </div>
+                    <?php endif; ?>
                 </div>
                 <?php endforeach; ?>
                 <?php endif; ?>
@@ -194,7 +208,7 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
                     <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">
                         <i class="fas fa-pen me-2" style="color:var(--primary);"></i>Tulis Ulasan
                     </h3>
-                    <form action="<?= BASE_URL ?>/reviews/submit" method="POST">
+                    <form action="<?= BASE_URL ?>/reviews/submit" method="POST" enctype="multipart/form-data">
                         <input type="hidden" name="destination_id" value="<?= $destination['id'] ?>">
 
                         <!-- Star Rating Input -->
@@ -216,6 +230,32 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
                             <textarea name="comment" rows="3" class="form-control"
                                       placeholder="Bagikan pengalamanmu di <?= htmlspecialchars($destination['name']) ?>..."
                                       style="font-family:'Outfit',sans-serif;border-radius:10px;font-size:0.9rem;resize:none;"></textarea>
+                        </div>
+
+                        <!-- Upload Foto Ulasan -->
+                        <div class="mb-4">
+                            <label class="form-label fw-600" style="font-size:0.88rem;">
+                                <i class="fas fa-camera me-1" style="color:var(--primary);"></i>Foto Pendukung <span style="color:var(--gray-500);font-weight:400;">(opsional, maks 3 MB)</span>
+                            </label>
+                            <label for="review_photo" id="photoDropZone"
+                                   style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.5rem;border:2px dashed var(--gray-200);border-radius:12px;padding:1.25rem;cursor:pointer;transition:var(--transition);background:var(--gray-50);">
+                                <i class="fas fa-cloud-upload-alt" style="font-size:1.6rem;color:var(--gray-500);"></i>
+                                <span style="font-size:0.85rem;color:var(--gray-500);">Klik atau seret foto ke sini</span>
+                                <span style="font-size:0.75rem;color:var(--gray-500);">JPG, PNG, WEBP &bull; Maks 3 MB</span>
+                            </label>
+                            <input type="file" id="review_photo" name="review_photo"
+                                   accept="image/jpeg,image/png,image/webp"
+                                   style="display:none;"
+                                   onchange="previewReviewPhoto(this)">
+                            <!-- Preview foto -->
+                            <div id="photoPreviewWrap" style="display:none;margin-top:0.75rem;position:relative;">
+                                <img id="photoPreview" src="" alt="Preview"
+                                     style="max-width:100%;max-height:180px;border-radius:10px;object-fit:cover;border:1px solid var(--gray-200);">
+                                <button type="button" onclick="removeReviewPhoto()"
+                                        style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:26px;height:26px;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <button type="submit" class="btn-primary-custom btn">
@@ -257,7 +297,15 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
                 <div class="info-item">
                     <div class="info-icon"><i class="fas <?= $item['icon'] ?>"></i></div>
                     <div>
-                        <div style="font-size:0.75rem;color:var(--gray-500);margin-bottom:2px;"><?= $item['label'] ?></div>
+                        <div style="font-size:0.75rem;color:var(--gray-500);margin-bottom:2px;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+                            <?= $item['label'] ?>
+                            <?php if ($item['icon'] === 'fa-clock' && !empty($destination['open_hours'])): ?>
+                                <?php $status = getDestinationStatus($destination['open_hours']); ?>
+                                <span class="badge" style="<?= $status['style'] ?>; font-size:0.68rem; padding:0.18rem 0.45rem; border-radius:30px; font-weight:600;">
+                                    <?= $status['label'] ?>
+                                </span>
+                            <?php endif; ?>
+                        </div>
                         <div style="font-size:0.9rem;font-weight:600;color:var(--dark);"><?= htmlspecialchars($item['val']) ?></div>
                     </div>
                 </div>
@@ -277,6 +325,16 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
                 </div>
                 <?php endif; ?>
             </div>
+
+            <!-- Peta Interaktif -->
+            <?php if ($destination['latitude'] && $destination['longitude']): ?>
+            <div class="info-card mt-3" data-aos="fade-left" data-aos-delay="120">
+                <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">
+                    <i class="fas fa-map-marked-alt me-2" style="color:var(--primary);"></i>Peta Lokasi
+                </h3>
+                <div id="map" style="height: 220px; border-radius: 12px; border: 1px solid var(--gray-200); z-index: 1;"></div>
+            </div>
+            <?php endif; ?>
 
             <!-- Share -->
             <div class="info-card mt-3" data-aos="fade-left" data-aos-delay="150">
@@ -343,7 +401,30 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
 
 <!-- Swiper + Scripts -->
 <?php ob_start(); ?>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
+// Init Leaflet Map
+<?php if ($destination['latitude'] && $destination['longitude']): ?>
+document.addEventListener("DOMContentLoaded", function() {
+    const lat = <?= (float)$destination['latitude'] ?>;
+    const lng = <?= (float)$destination['longitude'] ?>;
+    const map = L.map('map').setView([lat, lng], 15);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    
+    const marker = L.marker([lat, lng]).addTo(map);
+    marker.bindPopup("<b><?= htmlspecialchars($destination['name']) ?></b><br><?= htmlspecialchars(explode(',', $destination['address'] ?? '')[0]) ?>").openPopup();
+    
+    // Fix leaflet grey areas on load
+    setTimeout(function() {
+        map.invalidateSize();
+    }, 400);
+});
+<?php endif; ?>
+
 // Init Swiper Gallery
 new Swiper('.destinationSwiper', {
     loop: true,
@@ -405,6 +486,68 @@ function toggleWishlistDetail(destinationId, btn) {
         }
     });
 }
+
+// ── Preview Foto Ulasan ──────────────────────────────────────
+function previewReviewPhoto(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    // Validasi ukuran di sisi klien (3 MB)
+    if (file.size > 3 * 1024 * 1024) {
+        Swal.fire({ toast: true, position: 'top-end', icon: 'warning',
+                    title: 'Foto terlalu besar! Maksimal 3 MB.',
+                    showConfirmButton: false, timer: 2500 });
+        input.value = '';
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('photoPreview').src = e.target.result;
+        document.getElementById('photoPreviewWrap').style.display = 'block';
+
+        const dropZone = document.getElementById('photoDropZone');
+        dropZone.style.borderColor = 'var(--primary)';
+        dropZone.style.background  = 'var(--primary-light)';
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeReviewPhoto() {
+    const input = document.getElementById('review_photo');
+    input.value = '';
+    document.getElementById('photoPreviewWrap').style.display = 'none';
+
+    const dropZone = document.getElementById('photoDropZone');
+    dropZone.style.borderColor = 'var(--gray-200)';
+    dropZone.style.background  = 'var(--gray-50)';
+}
+
+// Drag & drop visual feedback
+document.addEventListener('DOMContentLoaded', function() {
+    const dropZone = document.getElementById('photoDropZone');
+    if (!dropZone) return;
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dropZone.style.borderColor = 'var(--primary)';
+        dropZone.style.background  = 'var(--primary-light)';
+    });
+    dropZone.addEventListener('dragleave', function() {
+        if (!document.getElementById('photoPreviewWrap').style.display || document.getElementById('photoPreviewWrap').style.display === 'none') {
+            dropZone.style.borderColor = 'var(--gray-200)';
+            dropZone.style.background  = 'var(--gray-50)';
+        }
+    });
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const input = document.getElementById('review_photo');
+            input.files = files;
+            previewReviewPhoto(input);
+        }
+    });
+});
 </script>
 <?php $scripts = ob_get_clean(); ?>
 

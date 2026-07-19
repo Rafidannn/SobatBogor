@@ -39,21 +39,33 @@ class AuthController extends Controller {
         // Validasi input tidak kosong
         if (empty($email) || empty($password)) {
             $this->view('auth/login', [
-                'title' => 'Login - SobatBogor',
-                'error' => 'Email dan password wajib diisi.'
-            ]);
+                'title'      => 'Login - SobatBogor',
+                'error'      => 'Email dan password wajib diisi.',
+                'errorField' => 'both',
+            ], 'none');
             return;
         }
 
         // Cari user berdasarkan email
         $user = $this->userModel->findByEmail($email);
 
-        // Verifikasi user ditemukan & password cocok
-        if (!$user || !password_verify($password, $user['password'])) {
+        // Email tidak ditemukan di database
+        if (!$user) {
             $this->view('auth/login', [
-                'title' => 'Login - SobatBogor',
-                'error' => 'Email atau password salah.'
-            ]);
+                'title'      => 'Login - SobatBogor',
+                'error'      => 'Email tidak terdaftar. Coba cek kembali atau daftar akun baru.',
+                'errorField' => 'email',
+            ], 'none');
+            return;
+        }
+
+        // Password tidak cocok
+        if (!password_verify($password, $user['password'])) {
+            $this->view('auth/login', [
+                'title'      => 'Login - SobatBogor',
+                'error'      => 'Password yang kamu masukkan salah. Silakan coba lagi.',
+                'errorField' => 'password',
+            ], 'none');
             return;
         }
 

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 function formatPrice(string|int|null $price): string {
     if ($price === null || $price == 0) return '<span class="text-success fw-bold">Gratis</span>';
     return 'Rp ' . number_format((float)$price, 0, ',', '.');
@@ -13,6 +13,70 @@ function renderStars(float $rating): string {
     return $html;
 }
 ?>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+<style>
+#btnViewGrid.active, #btnViewMap.active {
+    background: var(--gradient) !important;
+    color: var(--white) !important;
+    border-color: transparent !important;
+}
+#btnViewGrid:not(.active), #btnViewMap:not(.active) {
+    background: var(--white) !important;
+    color: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+#btnViewGrid:hover:not(.active), #btnViewMap:hover:not(.active) {
+    background: var(--primary-light) !important;
+}
+.map-popup-card {
+    font-family: 'Outfit', sans-serif;
+    min-width: 180px;
+}
+.map-popup-card img {
+    width: 100%;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 6px;
+}
+.map-popup-card h5 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+    color: var(--dark);
+}
+.map-popup-card p {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    margin-bottom: 4px;
+    line-height: 1.2;
+}
+.map-popup-card .price {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--secondary);
+    margin-bottom: 6px;
+}
+.map-popup-btn {
+    display: block;
+    text-align: center;
+    background: var(--gradient);
+    color: #fff !important;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 6px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: var(--transition);
+}
+.map-popup-btn:hover {
+    background: var(--gradient-hover);
+    transform: translateY(-1px);
+}
+</style>
 
 <!-- Page Header -->
 <div style="background:linear-gradient(135deg,#0f172a,#1e293b);padding:3.5rem 0 2.5rem;">
@@ -121,7 +185,28 @@ function renderStars(float $rating): string {
             </div>
 
             <?php else: ?>
-            <div class="row g-4">
+            <!-- View Toggle & Info -->
+            <div class="d-flex justify-content-between align-items-center mb-4" data-aos="fade-up" style="background:#fff; padding: 0.75rem 1.25rem; border-radius:12px; border:1px solid var(--gray-200);">
+                <span style="color:var(--gray-500); font-size:0.9rem;">
+                    Menampilkan <strong style="color:var(--primary);"><?= count($destinations) ?></strong> destinasi terbaik
+                </span>
+                <div class="btn-group btn-group-sm" role="group" style="box-shadow:var(--shadow-sm); border-radius:30px; overflow:hidden;">
+                    <button type="button" class="btn px-3 py-1.5 active" id="btnViewGrid" 
+                            style="font-family:'Outfit',sans-serif; font-weight:600; font-size:0.82rem; transition:var(--transition); border:1px solid var(--primary);">
+                        <i class="fas fa-th-large me-1"></i>Grid
+                    </button>
+                    <button type="button" class="btn px-3 py-1.5" id="btnViewMap" 
+                            style="font-family:'Outfit',sans-serif; font-weight:600; font-size:0.82rem; transition:var(--transition); border:1px solid var(--primary); border-left:none;">
+                        <i class="fas fa-map-marked-alt me-1"></i>Peta
+                    </button>
+                </div>
+            </div>
+
+            <!-- Peta Container -->
+            <div id="catalogMap" style="display: none; height: 500px; border-radius: 12px; border: 1px solid var(--gray-200); z-index: 1; margin-bottom: 2rem; box-shadow: var(--shadow-sm);"></div>
+
+            <!-- Grid Container -->
+            <div id="catalogGrid" class="row g-4">
                 <?php foreach ($destinations as $idx => $dest): ?>
                 <div class="col-md-6 col-xl-4" data-aos="fade-up" data-aos-delay="<?= ($idx % 3) * 80 ?>">
                     <div class="destination-card h-100">
@@ -154,10 +239,15 @@ function renderStars(float $rating): string {
                                 <?= htmlspecialchars($dest['address'] ?? 'Bogor') ?>
                             </p>
                             <?php if ($dest['open_hours']): ?>
-                            <p style="font-size:0.8rem;color:var(--secondary);">
-                                <i class="fas fa-clock me-1"></i>
-                                <?= htmlspecialchars($dest['open_hours']) ?>
-                            </p>
+                            <?php $status = getDestinationStatus($dest['open_hours']); ?>
+                            <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                                <span class="badge" style="<?= $status['style'] ?>; font-size:0.7rem; padding:0.22rem 0.5rem; border-radius:30px; font-weight:600;">
+                                    <?= $status['label'] ?>
+                                </span>
+                                <span style="font-size:0.76rem; color:var(--gray-500); font-family:'Outfit',sans-serif;">
+                                    <i class="fas fa-clock me-1" style="color:var(--gray-400);"></i><?= htmlspecialchars($dest['open_hours']) ?>
+                                </span>
+                            </div>
                             <?php endif; ?>
                             <div class="card-footer-info mt-auto">
                                 <div class="ticket-price"><?= formatPrice($dest['ticket_price']) ?></div>
@@ -181,6 +271,9 @@ function renderStars(float $rating): string {
         </div>
     </div>
 </div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <script>
 function toggleWishlist(destinationId, btn) {
@@ -207,6 +300,109 @@ function toggleWishlist(destinationId, btn) {
                         showConfirmButton:false, timer:1800, timerProgressBar:true });
         }
     });
+}
+
+// ── PETA WISATA CATALOG LOGIC ──
+let map = null;
+let markers = [];
+const destinationsData = <?= json_encode($destinations) ?>;
+const baseUrl = '<?= BASE_URL ?>';
+
+const btnViewGrid = document.getElementById('btnViewGrid');
+const btnViewMap = document.getElementById('btnViewMap');
+const catalogGrid = document.getElementById('catalogGrid');
+const catalogMap = document.getElementById('catalogMap');
+
+if (btnViewGrid && btnViewMap) {
+    btnViewGrid.addEventListener('click', function() {
+        btnViewGrid.classList.add('active');
+        btnViewMap.classList.remove('active');
+        if (catalogGrid) catalogGrid.style.display = 'flex';
+        if (catalogMap) catalogMap.style.display = 'none';
+    });
+
+    btnViewMap.addEventListener('click', function() {
+        btnViewMap.classList.add('active');
+        btnViewGrid.classList.remove('active');
+        if (catalogGrid) catalogGrid.style.display = 'none';
+        if (catalogMap) catalogMap.style.display = 'block';
+        
+        initializeCatalogMap();
+    });
+}
+
+function initializeCatalogMap() {
+    if (map) {
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 100);
+        return;
+    }
+
+    let defaultCenter = [-6.5981, 106.7994]; // Default: Kebun Raya Bogor
+    let validCoords = [];
+
+    destinationsData.forEach(dest => {
+        if (dest.latitude && dest.longitude) {
+            validCoords.push([parseFloat(dest.latitude), parseFloat(dest.longitude)]);
+        }
+    });
+
+    if (validCoords.length > 0) {
+        defaultCenter = validCoords[0];
+    }
+
+    map = L.map('catalogMap').setView(defaultCenter, 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    const markerBounds = [];
+
+    destinationsData.forEach(dest => {
+        if (dest.latitude && dest.longitude) {
+            const lat = parseFloat(dest.latitude);
+            const lng = parseFloat(dest.longitude);
+            
+            const marker = L.marker([lat, lng]).addTo(map);
+            
+            // Format Harga
+            let priceHtml = '';
+            if (!dest.ticket_price || parseFloat(dest.ticket_price) === 0) {
+                priceHtml = '<div class="price">Gratis</div>';
+            } else {
+                const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(dest.ticket_price);
+                priceHtml = '<div class="price">' + formattedPrice + '</div>';
+            }
+
+            // Image HTML
+            let imgHtml = '';
+            if (dest.primary_image) {
+                imgHtml = '<img src="' + baseUrl + '/' + dest.primary_image + '" alt="' + dest.name + '">';
+            } else {
+                imgHtml = '<div style="width:100%; height:90px; background:linear-gradient(135deg,#fed7aa,#fb923c); border-radius:8px; display:flex; align-items:center; justify-content:center; margin-bottom:6px;"><i class="fas fa-mountain" style="color:rgba(255,255,255,0.6); font-size:1.5rem;"></i></div>';
+            }
+
+            const popupContent = `
+                <div class="map-popup-card">
+                    ${imgHtml}
+                    <h5>${dest.name}</h5>
+                    <p><i class="fas fa-map-marker-alt text-primary-custom me-1"></i>${dest.address ? dest.address.split(',')[0] : 'Bogor'}</p>
+                    ${priceHtml}
+                    <a href="${baseUrl}/destinations/${dest.slug}" class="map-popup-btn">Lihat Detail</a>
+                </div>
+            `;
+            
+            marker.bindPopup(popupContent);
+            markers.push(marker);
+            markerBounds.push([lat, lng]);
+        }
+    });
+
+    if (markerBounds.length > 0) {
+        map.fitBounds(markerBounds, { padding: [40, 40] });
+    }
 }
 </script>
 

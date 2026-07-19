@@ -16,6 +16,7 @@ class ReviewController extends Controller {
     /**
      * POST /reviews/submit
      * Menyimpan ulasan baru dari user yang sudah login.
+     * Mendukung upload foto opsional (jpg/jpeg/png/webp, maks 3MB).
      */
     public function submit(): void {
         AuthMiddleware::handle();
@@ -49,6 +50,50 @@ class ReviewController extends Controller {
             $this->redirectToDestination($destinationId);
         }
 
+        // ── Upload Foto Ulasan (opsional) ──────────────────────────────
+        $photoPath = null;
+        if (!empty($_FILES['review_photo']['name'])) {
+            $file     = $_FILES['review_photo'];
+            $allowed  = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+            $maxSize  = 3 * 1024 * 1024; // 3 MB
+
+            // Validasi tipe MIME dengan finfo (lebih aman dari ekstensi)
+            $finfo    = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_file($finfo, $file['tmp_name']);
+            finfo_close($finfo);
+
+            if ($file['error'] !== UPLOAD_ERR_OK) {
+                $_SESSION['flash'] = ['type' => 'error', 'message' => 'Gagal mengunggah foto. Coba lagi.'];
+                $this->redirectToDestination($destinationId);
+            }
+            if (!in_array($mimeType, $allowed)) {
+                $_SESSION['flash'] = ['type' => 'error', 'message' => 'Format foto tidak didukung. Gunakan JPG, PNG, atau WEBP.'];
+                $this->redirectToDestination($destinationId);
+            }
+            if ($file['size'] > $maxSize) {
+                $_SESSION['flash'] = ['type' => 'error', 'message' => 'Ukuran foto maksimal 3 MB.'];
+                $this->redirectToDestination($destinationId);
+            }
+
+            // Buat folder jika belum ada
+            $uploadDir = ROOT_PATH . '/public/assets/uploads/reviews/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            // Generate nama file unik agar tidak tertimpa
+            $ext      = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $filename = 'review_' . $userId . '_' . $destinationId . '_' . time() . '.' . strtolower($ext);
+
+            if (!move_uploaded_file($file['tmp_name'], $uploadDir . $filename)) {
+                $_SESSION['flash'] = ['type' => 'error', 'message' => 'Gagal menyimpan foto. Coba lagi.'];
+                $this->redirectToDestination($destinationId);
+            }
+
+            $photoPath = 'assets/uploads/reviews/' . $filename;
+        }
+        // ─────────────────────────────────────────────────────────────────
+
         // Simpan ulasan (is_visible = 0, menunggu persetujuan admin)
         $reviewModel = new Review();
         $result = $reviewModel->create([
@@ -56,6 +101,7 @@ class ReviewController extends Controller {
             'destination_id' => $destinationId,
             'rating'         => $rating,
             'comment'        => $comment,
+            'photo_path'     => $photoPath,
             'is_visible'     => 0,
         ]);
 

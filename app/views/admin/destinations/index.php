@@ -57,7 +57,15 @@
                                     <td class="fw-semibold text-dark">
                                         <?= ($dest['ticket_price'] > 0) ? 'Rp ' . number_format($dest['ticket_price'], 0, ',', '.') : '<span class="text-success fw-bold">Gratis</span>' ?>
                                     </td>
-                                    <td class="small"><?= htmlspecialchars($dest['open_hours'] ?: '-') ?></td>
+                                    <td>
+                                        <div class="small fw-semibold"><?= htmlspecialchars($dest['open_hours'] ?: '-') ?></div>
+                                        <?php if ($dest['open_hours']): ?>
+                                            <?php $status = getDestinationStatus($dest['open_hours']); ?>
+                                            <span class="badge mt-1" style="<?= $status['style'] ?>; font-size:0.65rem; padding:0.18rem 0.4rem; border-radius:30px; font-weight:600; display:inline-block;">
+                                                <?= $status['label'] ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td>
                                         <?php if ($dest['is_featured'] == 1): ?>
                                             <span class="badge bg-warning text-dark"><i class="fa fa-star me-1"></i>Trending</span>

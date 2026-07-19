@@ -92,7 +92,12 @@
                                 <a href="<?= BASE_URL ?>/admin/destinations" class="list-group-item list-group-item-action py-3">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1 fw-bold text-dark"><?= htmlspecialchars($dest['name']) ?></h6>
-                                        <small class="text-muted"><?= htmlspecialchars($dest['open_hours']) ?></small>
+                                        <?php if ($dest['open_hours']): ?>
+                                            <?php $status = getDestinationStatus($dest['open_hours']); ?>
+                                            <span class="badge" style="<?= $status['style'] ?>; font-size:0.65rem; padding:0.2rem 0.4rem; border-radius:30px; font-weight:600; align-self: center;">
+                                                <?= $status['label'] ?>
+                                            </span>
+                                        <?php endif; ?>
                                     </div>
                                     <p class="mb-1 text-muted small text-truncate"><?= htmlspecialchars($dest['address']) ?></p>
                                     <small class="badge bg-success-subtle text-success"><?= htmlspecialchars($dest['category_name']) ?></small>

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 function formatPriceW(string|int|null $price): string {
     if ($price === null || $price == 0) return '<span class="text-success fw-bold">Gratis</span>';
     return 'Rp ' . number_format((float)$price, 0, ',', '.');
@@ -70,9 +70,15 @@ function formatPriceW(string|int|null $price): string {
                         <?= htmlspecialchars($item['address'] ?? 'Bogor') ?>
                     </p>
                     <?php if ($item['open_hours']): ?>
-                    <p style="font-size:0.8rem;color:var(--secondary);">
-                        <i class="fas fa-clock me-1"></i><?= htmlspecialchars($item['open_hours']) ?>
-                    </p>
+                    <?php $status = getDestinationStatus($item['open_hours']); ?>
+                    <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                        <span class="badge" style="<?= $status['style'] ?>; font-size:0.7rem; padding:0.22rem 0.5rem; border-radius:30px; font-weight:600;">
+                            <?= $status['label'] ?>
+                        </span>
+                        <span style="font-size:0.76rem; color:var(--gray-500); font-family:'Outfit',sans-serif;">
+                            <i class="fas fa-clock me-1" style="color:var(--gray-400);"></i><?= htmlspecialchars($item['open_hours']) ?>
+                        </span>
+                    </div>
                     <?php endif; ?>
 
                     <div class="card-footer-info mt-auto">
