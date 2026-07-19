@@ -5,6 +5,16 @@
 CREATE DATABASE IF NOT EXISTS sobatbogor CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE sobatbogor;
 
+-- Drop tables in order to avoid foreign key constraint errors
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS wishlists;
+DROP TABLE IF EXISTS reviews;
+DROP TABLE IF EXISTS destination_images;
+DROP TABLE IF EXISTS destinations;
+DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS users;
+SET FOREIGN_KEY_CHECKS = 1;
+
 -- Table: users
 CREATE TABLE IF NOT EXISTS users (
     id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

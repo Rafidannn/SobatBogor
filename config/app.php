@@ -6,7 +6,7 @@
  */
 return [
     'name'        => 'SobatBogor',
-    'url'         => 'http://localhost/sobatbogor',
+    'url'         => 'http://sobatbogor.test',
     'env'         => 'development', // 'production'
     'debug'       => true,
     'timezone'    => 'Asia/Jakarta',

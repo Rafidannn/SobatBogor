@@ -4,11 +4,11 @@
 
 USE sobatbogor;
 
--- 1. Insert Users (Password: password123, dihashing menggunakan bcrypt '$2y$10$tM9sE7Pmsi1jAfe4gVfX5.z.YQJ2z9U2V7xZ3H3vU2b5a5c5d5e5f')
+-- 1. Insert Users (Password: password123, dihashing menggunakan bcrypt)
 -- Role: Admin dan Registered User
 INSERT INTO users (id, name, email, password, role) VALUES
-(1, 'Administrator SobatBogor', 'admin@sobatbogor.com', '$2y$10$tM9sE7Pmsi1jAfe4gVfX5.z.YQJ2z9U2V7xZ3H3vU2b5a5c5d5e5f', 'admin'),
-(2, 'Budi Setiawan', 'budi@gmail.com', '$2y$10$tM9sE7Pmsi1jAfe4gVfX5.z.YQJ2z9U2V7xZ3H3vU2b5a5c5d5e5f', 'user');
+(1, 'Administrator SobatBogor', 'admin@sobatbogor.com', '$2y$10$lfLG/N3PlwMNAWi2VhFoGuaiY4ZuumS.8luqVs3gOLH0JnG.cQAru', 'admin'),
+(2, 'Budi Setiawan', 'budi@gmail.com', '$2y$10$lfLG/N3PlwMNAWi2VhFoGuaiY4ZuumS.8luqVs3gOLH0JnG.cQAru', 'user');
 
 -- 2. Insert Categories
 INSERT INTO categories (id, name, slug, icon) VALUES

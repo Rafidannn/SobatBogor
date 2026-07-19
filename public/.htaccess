@@ -1,8 +1,19 @@
-# Apache URL Rewrite for public/
-# All requests (except real files/dirs) go to index.php
+# Apache URL Rewrite — SobatBogor
+# Semua request (kecuali file/dir nyata) diteruskan ke index.php
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteBase /
+
+    # Jangan rewrite file atau direktori yang benar-benar ada
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+
+    # Teruskan semua request ke index.php (Router baca REQUEST_URI)
+    RewriteRule ^ index.php [L]
 </IfModule>
+
+# Blok akses langsung ke direktori sensitif
+<FilesMatch "\.(env|sql|md|log|json|lock)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>

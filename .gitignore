@@ -1,0 +1,28 @@
+# Dependencies & cache
+/vendor/
+node_modules/
+
+# Konfigurasi lokal (JANGAN di-push, isi manual di komputer masing-masing)
+config/app.php
+
+# Log files
+*.log
+/logs/
+
+# Upload files (gambar destinasi, dikecualikan dari repo)
+/public/assets/uploads/*
+!/public/assets/uploads/.gitkeep
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Temporary files
+*.tmp
+*.temp
