@@ -9,9 +9,15 @@ config/app.php
 *.log
 /logs/
 
-# Upload files (gambar destinasi, dikecualikan dari repo)
+# Upload files — foto ulasan user tidak di-push (privat)
+/public/assets/uploads/reviews/
+
+# Abaikan file langsung di root uploads (selain .gitkeep)
 /public/assets/uploads/*
 !/public/assets/uploads/.gitkeep
+!/public/assets/uploads/destinations/
+!/public/assets/uploads/kebun_raya_bogor_1.jpg
+!/public/assets/uploads/kebun_raya_bogor_2.jpg
 
 # OS files
 .DS_Store
