@@ -2,7 +2,6 @@
 # Semua request (kecuali file/dir nyata) diteruskan ke index.php
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /
 
     # Jangan rewrite file atau direktori yang benar-benar ada
     RewriteCond %{REQUEST_FILENAME} !-f

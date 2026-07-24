@@ -13,5 +13,5 @@ return [
 
     // Third-party API Keys (fill before Tugas 5)
     'gmaps_key'   => '',   // Google Maps API Key
-    'weather_key' => '',   // OpenWeatherMap API Key
+    'weather_key' => '00d96a70caecfb43568cd429ebed7edf',   
 ];

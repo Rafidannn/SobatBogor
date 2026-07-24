@@ -6,6 +6,7 @@ require_once ROOT_PATH . '/app/models/Destination.php';
 require_once ROOT_PATH . '/app/models/Category.php';
 require_once ROOT_PATH . '/app/models/Review.php';
 require_once ROOT_PATH . '/app/models/DestinationImage.php';
+require_once ROOT_PATH . '/app/models/DestinationLink.php';
 
 /**
  * DestinationController.php
@@ -33,8 +34,10 @@ class DestinationController extends Controller {
         $params = [];
 
         if ($search !== '') {
-            $where[]  = "(d.name LIKE :q OR d.address LIKE :q OR d.description LIKE :q)";
-            $params[':q'] = "%{$search}%";
+            $where[]  = "(d.name LIKE :q1 OR d.address LIKE :q2 OR d.description LIKE :q3)";
+            $params[':q1'] = "%{$search}%";
+            $params[':q2'] = "%{$search}%";
+            $params[':q3'] = "%{$search}%";
         }
 
         $categoryId = null;
@@ -175,6 +178,11 @@ class DestinationController extends Controller {
         $relatedStmt->execute([$destination['category_id'], $slug]);
         $related = $relatedStmt->fetchAll(PDO::FETCH_ASSOC);
 
+        $weather = getLiveWeather($destination['latitude'], $destination['longitude']);
+
+        $linkModel   = new DestinationLink();
+        $ticketLink  = $linkModel->findActiveByDestinationId((int)$destination['id']);
+
         $this->view('destinations/detail', [
             'title'        => $destination['name'] . ' — Wisata Bogor',
             'metaDesc'     => substr(strip_tags($destination['description'] ?? ''), 0, 155),
@@ -186,6 +194,8 @@ class DestinationController extends Controller {
             'hasReviewed'  => $hasReviewed,
             'related'      => $related,
             'flashMsg'     => $flashMsg,
+            'weather'      => $weather,
+            'ticketLink'   => $ticketLink,
         ]);
     }
 }

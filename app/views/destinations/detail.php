@@ -302,6 +302,42 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
                 </div>
             </div>
 
+            <?php if (!empty($ticketLink)): ?>
+            <div class="mb-3" data-aos="fade-left" data-aos-delay="30">
+                <a href="<?= htmlspecialchars($ticketLink['url']) ?>"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   style="display:flex;align-items:center;justify-content:center;gap:0.6rem;width:100%;padding:0.85rem 1rem;background:linear-gradient(135deg,var(--primary),#c2410c);color:#fff;border-radius:14px;font-weight:700;font-size:1rem;text-decoration:none;box-shadow:0 4px 15px rgba(234,88,12,0.35);transition:all 0.25s ease;"
+                   onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(234,88,12,0.45)';"
+                   onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 15px rgba(234,88,12,0.35)';">
+                    <i class="fas fa-ticket-alt" style="font-size:1.1rem;"></i>
+                    <?= htmlspecialchars($ticketLink['label']) ?>
+                    <i class="fas fa-external-link-alt" style="font-size:0.75rem;opacity:0.8;"></i>
+                </a>
+            </div>
+            <?php endif; ?>
+
+            <?php if (!empty($weather)): ?>
+            <div class="info-card mb-3" data-aos="fade-left" data-aos-delay="50">
+                <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.85rem;">
+                    <i class="fas fa-cloud-sun me-2" style="color:var(--primary);"></i>Cuaca Saat Ini
+                </h3>
+                <div class="d-flex align-items-center justify-content-between" style="background:linear-gradient(135deg,#fdfbfb 0%,#ebedee 100%);border:1px solid var(--gray-200);border-radius:12px;padding:1rem;">
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="https://openweathermap.org/img/wn/<?= $weather['icon'] ?>@2x.png" alt="Icon Cuaca" style="width:60px;height:60px;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.1));">
+                        <div>
+                            <div style="font-size:1.8rem;font-weight:800;color:var(--dark);line-height:1;"><?= $weather['temp'] ?>&deg;C</div>
+                            <div style="font-size:0.85rem;color:var(--gray-600);font-weight:500;"><?= $weather['desc'] ?></div>
+                        </div>
+                    </div>
+                    <div style="text-align:right;border-left:1px solid var(--gray-200);padding-left:1rem;">
+                        <div style="font-size:0.75rem;color:var(--gray-500);margin-bottom:4px;"><i class="fas fa-tint me-1" style="color:#3b82f6;"></i> <?= $weather['humidity'] ?>%</div>
+                        <div style="font-size:0.75rem;color:var(--gray-500);"><i class="fas fa-wind me-1" style="color:#64748b;"></i> <?= $weather['wind_speed'] ?> km/h</div>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <!-- Info Detail -->
             <?php $statusInfo = getDestinationStatus($destination['open_hours'] ?? ''); ?>
             <div class="info-card" data-aos="fade-left" data-aos-delay="100">

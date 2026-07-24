@@ -157,4 +157,44 @@
             </form>
         </div>
     </div>
+
+    <?php if ($isEdit): ?>
+    <?php
+    require_once ROOT_PATH . '/app/models/DestinationLink.php';
+    $linkModel       = new DestinationLink();
+    $existingLink    = $linkModel->findByDestinationId($destination['id']);
+    ?>
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3"><i class="fa fa-ticket-alt me-2 text-success"></i>Link Tombol "Pesan Tiket"</h5>
+            <form action="<?= BASE_URL ?>/admin/destinations/link/save/<?= $destination['id'] ?>" method="POST">
+                <div class="mb-3">
+                    <label for="link_label" class="form-label fw-semibold">Teks Tombol</label>
+                    <input type="text" class="form-control" id="link_label" name="link_label"
+                           value="<?= htmlspecialchars($existingLink['label'] ?? 'Pesan Tiket') ?>"
+                           placeholder="Contoh: Pesan Tiket, Beli Tiket, Reservasi">
+                </div>
+                <div class="mb-3">
+                    <label for="link_url" class="form-label fw-semibold">URL Tujuan</label>
+                    <input type="url" class="form-control" id="link_url" name="link_url"
+                           value="<?= htmlspecialchars($existingLink['url'] ?? '') ?>"
+                           placeholder="https://tiket.com/... atau https://booking-anda.com/...">
+                    <div class="form-text">Isi dengan URL lengkap tempat pemesanan tiket. Kosongkan jika tidak ingin menampilkan tombol.</div>
+                </div>
+                <div class="mb-4 form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="link_is_active" name="link_is_active" value="1"
+                           <?= (empty($existingLink) || $existingLink['is_active'] == 1) ? 'checked' : '' ?>>
+                    <label class="form-check-label fw-semibold text-success" for="link_is_active">
+                        <i class="fa fa-toggle-on me-1"></i> Aktifkan Tombol Pesan Tiket
+                    </label>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-success fw-bold px-4">
+                        <i class="fa fa-save me-1"></i> Simpan Link Tiket
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>

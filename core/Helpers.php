@@ -121,3 +121,35 @@ if (!function_exists('getDestinationPricing')) {
         ];
     }
 }
+
+if (!function_exists('getLiveWeather')) {
+    function getLiveWeather($lat, $lon) {
+        $config = require ROOT_PATH . '/config/app.php';
+        $apiKey = $config['weather_key'] ?? '';
+        if (empty($apiKey) || empty($lat) || empty($lon)) {
+            return null;
+        }
+        $url = "https://api.openweathermap.org/data/2.5/weather?lat={$lat}&lon={$lon}&appid={$apiKey}&units=metric&lang=id";
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($httpCode === 200 && $response) {
+            $data = json_decode($response, true);
+            if (isset($data['weather'][0], $data['main'])) {
+                return [
+                    'temp' => round($data['main']['temp']),
+                    'desc' => ucwords($data['weather'][0]['description']),
+                    'icon' => $data['weather'][0]['icon'],
+                    'humidity' => $data['main']['humidity'],
+                    'wind_speed' => round($data['wind']['speed'] * 3.6, 1)
+                ];
+            }
+        }
+        return null;
+    }
+}

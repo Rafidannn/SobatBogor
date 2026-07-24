@@ -38,3 +38,4 @@ $router->post('/admin/destinations/delete/{id}','admin\DestinationAdminControlle
 $router->get('/admin/reviews',                 'admin\ReviewAdminController@index');
 $router->post('/admin/reviews/hide/{id}',      'admin\ReviewAdminController@hide');
 $router->post('/admin/reviews/delete/{id}',    'admin\ReviewAdminController@delete');
+$router->post('/admin/destinations/link/save/{id}', 'admin\DestinationLinkAdminController@save');

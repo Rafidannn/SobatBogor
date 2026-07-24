@@ -78,33 +78,7 @@ function renderStars(float $rating): string {
                 </div>
             </div>
 
-            <!-- Hero floating cards (decorative) -->
-            <div class="col-lg-5 d-none d-lg-block" data-aos="fade-left" data-aos-delay="200">
-                <?php if (!empty($featuredDestinations)): ?>
-                <div style="position:relative;display:flex;flex-direction:column;gap:1rem;">
-                    <?php foreach (array_slice($featuredDestinations, 0, 2) as $idx => $fd): ?>
-                    <div style="background:rgba(255,255,255,0.1);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.2);border-radius:16px;padding:1rem;display:flex;align-items:center;gap:1rem;<?= $idx === 1 ? 'margin-left:2rem;' : '' ?>">
-                        <?php if ($fd['primary_image']): ?>
-                        <img src="<?= BASE_URL ?>/<?= htmlspecialchars($fd['primary_image']) ?>"
-                             style="width:56px;height:56px;border-radius:12px;object-fit:cover;" alt="<?= htmlspecialchars($fd['name']) ?>">
-                        <?php else: ?>
-                        <div style="width:56px;height:56px;border-radius:12px;background:rgba(234,88,12,0.3);display:flex;align-items:center;justify-content:center;">
-                            <i class="fas fa-image" style="color:#fb923c;"></i>
-                        </div>
-                        <?php endif; ?>
-                        <div>
-                            <div style="font-weight:700;color:#fff;font-size:0.9rem;"><?= htmlspecialchars($fd['name']) ?></div>
-                            <div style="color:rgba(255,255,255,0.6);font-size:0.78rem;"><?= htmlspecialchars($fd['category_name'] ?? '') ?></div>
-                            <div style="color:#f59e0b;font-size:0.72rem;margin-top:2px;">
-                                <?= renderStars((float)$fd['avg_rating']) ?>
-                                <span style="color:rgba(255,255,255,0.7);margin-left:4px;"><?= $fd['avg_rating'] ?></span>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-                <?php endif; ?>
-            </div>
+
         </div>
     </div>
 </section>
