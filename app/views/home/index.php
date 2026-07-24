@@ -173,6 +173,12 @@ function renderStars(float $rating): string {
                         <!-- Category badge -->
                         <span class="badge-category"><?= htmlspecialchars($dest['category_name'] ?? 'Wisata') ?></span>
 
+                        <!-- Status Badge (Buka/Tutup) -->
+                        <?php $statusInfo = getDestinationStatus($dest['open_hours'] ?? ''); ?>
+                        <span class="badge position-absolute" style="top:44px;left:12px;<?= $statusInfo['style'] ?>;font-size:0.7rem;border-radius:50px;padding:0.25rem 0.65rem;backdrop-filter:blur(4px);z-index:2;">
+                            <?= $statusInfo['label'] ?>
+                        </span>
+
                         <!-- Wishlist button -->
                         <?php $isWishlisted = in_array($dest['id'], $wishlistIds); ?>
                         <button class="wishlist-btn <?= $isWishlisted ? 'active' : '' ?>"
@@ -193,8 +199,15 @@ function renderStars(float $rating): string {
                             <?= htmlspecialchars($dest['address'] ?? 'Bogor, Jawa Barat') ?>
                         </p>
                         <div class="card-footer-info">
-                            <div class="ticket-price">
-                                <?= formatPrice($dest['ticket_price']) ?>
+                            <?php $pricing = getDestinationPricing($dest); ?>
+                            <div>
+                                <div class="ticket-price">
+                                    <?= $pricing['formatted_today'] ?> <span style="font-size:0.72rem;color:var(--gray-500);font-weight:normal;">/ orang</span>
+                                </div>
+                                <div style="font-size:0.72rem;color:var(--gray-500);">
+                                    <span title="Harga Hari Kerja (Senin-Jumat)">WD: <?= $pricing['formatted_weekday'] ?></span> | 
+                                    <span title="Harga Akhir Pekan (Sabtu-Minggu)">WE: <?= $pricing['formatted_weekend'] ?></span>
+                                </div>
                             </div>
                             <div class="rating-stars">
                                 <?= renderStars((float)$dest['avg_rating']) ?>
@@ -292,8 +305,14 @@ function renderStars(float $rating): string {
                             <?= htmlspecialchars($dest['address'] ?? 'Bogor') ?>
                         </p>
                         <div class="card-footer-info">
-                            <div class="ticket-price" style="font-size:0.85rem;">
-                                <?= formatPrice($dest['ticket_price']) ?>
+                            <?php $pricingRecent = getDestinationPricing($dest); ?>
+                            <div>
+                                <div class="ticket-price" style="font-size:0.85rem;">
+                                    <?= $pricingRecent['formatted_today'] ?>
+                                </div>
+                                <div style="font-size:0.68rem;color:var(--gray-500);">
+                                    WD: <?= $pricingRecent['formatted_weekday'] ?> | WE: <?= $pricingRecent['formatted_weekend'] ?>
+                                </div>
                             </div>
                             <div class="rating-stars">
                                 <i class="fas fa-star" style="color:#f59e0b;font-size:0.72rem;"></i>

@@ -277,35 +277,57 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
         <!-- ── RIGHT: Info Card + Related ─────────────────── -->
         <div class="col-lg-4">
 
-            <!-- Harga Tiket -->
-            <div class="info-card text-center mb-3" data-aos="fade-left">
-                <p style="color:var(--gray-500);font-size:0.82rem;margin-bottom:0.25rem;">Harga Tiket Masuk</p>
-                <?= formatPriceDetail($destination['ticket_price']) ?>
-                <p style="font-size:0.78rem;color:var(--gray-500);margin-top:0.25rem;">per orang</p>
+            <!-- Harga Tiket Weekday & Weekend -->
+            <?php $pricing = getDestinationPricing($destination); ?>
+            <div class="info-card mb-3" data-aos="fade-left">
+                <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.85rem;">
+                    <i class="fas fa-ticket-alt me-2" style="color:var(--primary);"></i>Harga Tiket Masuk
+                </h3>
+                <div style="background:linear-gradient(135deg,#1a6bbf15,#3a9e3a15);border:1.5px solid #1a6bbf30;border-radius:10px;padding:0.75rem;margin-bottom:0.75rem;text-align:center;">
+                    <div style="font-size:0.72rem;color:var(--gray-500);margin-bottom:0.2rem;">Harga Hari Ini (<?= $pricing['today_label'] ?>)</div>
+                    <div style="font-size:1.9rem;font-weight:800;color:var(--primary);line-height:1.1;"><?= $pricing['formatted_today'] ?></div>
+                    <div style="font-size:0.75rem;color:var(--gray-500);">per orang</div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <div style="background:<?= !$pricing['is_weekend'] ? '#f0fdf4' : '#f8fafc' ?>;border:1.5px solid <?= !$pricing['is_weekend'] ? '#3a9e3a' : 'var(--gray-200)' ?>;border-radius:10px;padding:0.6rem;text-align:center;">
+                        <div style="font-size:0.68rem;color:var(--gray-500);margin-bottom:0.25rem;"><i class="fas fa-briefcase me-1"></i>Hari Kerja<?= !$pricing['is_weekend'] ? ' <span style="background:#3a9e3a;color:#fff;font-size:0.58rem;padding:1px 5px;border-radius:20px;">Hari ini</span>' : '' ?></div>
+                        <div style="font-size:1rem;font-weight:700;color:var(--dark);"><?= $pricing['formatted_weekday'] ?></div>
+                        <div style="font-size:0.65rem;color:var(--gray-500);">Senin – Jumat</div>
+                    </div>
+                    <div style="background:<?= $pricing['is_weekend'] ? '#eff6ff' : '#f8fafc' ?>;border:1.5px solid <?= $pricing['is_weekend'] ? '#1a6bbf' : 'var(--gray-200)' ?>;border-radius:10px;padding:0.6rem;text-align:center;">
+                        <div style="font-size:0.68rem;color:var(--gray-500);margin-bottom:0.25rem;"><i class="fas fa-umbrella-beach me-1"></i>Akhir Pekan<?= $pricing['is_weekend'] ? ' <span style="background:#1a6bbf;color:#fff;font-size:0.58rem;padding:1px 5px;border-radius:20px;">Hari ini</span>' : '' ?></div>
+                        <div style="font-size:1rem;font-weight:700;color:var(--dark);"><?= $pricing['formatted_weekend'] ?></div>
+                        <div style="font-size:0.65rem;color:var(--gray-500);">Sabtu – Minggu</div>
+                    </div>
+                </div>
             </div>
 
             <!-- Info Detail -->
+            <?php $statusInfo = getDestinationStatus($destination['open_hours'] ?? ''); ?>
             <div class="info-card" data-aos="fade-left" data-aos-delay="100">
                 <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">Informasi Wisata</h3>
 
+                <!-- Status Buka/Tutup Prominent -->
+                <div style="background:<?= $statusInfo['status'] === 'buka' ? '#f0fdf4' : '#fff5f5' ?>;border:1.5px solid <?= $statusInfo['status'] === 'buka' ? '#3a9e3a' : '#ef4444' ?>;border-radius:10px;padding:0.7rem 0.85rem;margin-bottom:0.75rem;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:10px;height:10px;border-radius:50%;background:<?= $statusInfo['status'] === 'buka' ? '#3a9e3a' : '#ef4444' ?>;box-shadow:0 0 0 3px <?= $statusInfo['status'] === 'buka' ? '#3a9e3a40' : '#ef444440' ?>;flex-shrink:0;"></div>
+                        <div>
+                            <div style="font-weight:700;font-size:0.9rem;color:<?= $statusInfo['status'] === 'buka' ? '#065f46' : '#991b1b' ?>;"><?= $statusInfo['label'] ?></div>
+                            <div style="font-size:0.73rem;color:var(--gray-500);"><?= htmlspecialchars($statusInfo['detail']) ?></div>
+                        </div>
+                    </div>
+                </div>
+
                 <?php $infoItems = [
-                    ['icon' => 'fa-clock',        'label' => 'Jam Buka',   'val' => $destination['open_hours'] ?? 'Tidak tersedia'],
-                    ['icon' => 'fa-map-marker-alt','label' => 'Alamat',    'val' => $destination['address'] ?? '-'],
-                    ['icon' => 'fa-th-large',      'label' => 'Kategori',  'val' => $destination['category_name'] ?? '-'],
+                    ['icon' => 'fa-clock',        'label' => 'Jam Operasional', 'val' => $destination['open_hours'] ?? 'Tidak tersedia'],
+                    ['icon' => 'fa-map-marker-alt','label' => 'Alamat',         'val' => $destination['address'] ?? '-'],
+                    ['icon' => 'fa-th-large',      'label' => 'Kategori',       'val' => $destination['category_name'] ?? '-'],
                 ]; ?>
                 <?php foreach ($infoItems as $item): ?>
                 <div class="info-item">
                     <div class="info-icon"><i class="fas <?= $item['icon'] ?>"></i></div>
                     <div>
-                        <div style="font-size:0.75rem;color:var(--gray-500);margin-bottom:2px;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-                            <?= $item['label'] ?>
-                            <?php if ($item['icon'] === 'fa-clock' && !empty($destination['open_hours'])): ?>
-                                <?php $status = getDestinationStatus($destination['open_hours']); ?>
-                                <span class="badge" style="<?= $status['style'] ?>; font-size:0.68rem; padding:0.18rem 0.45rem; border-radius:30px; font-weight:600;">
-                                    <?= $status['label'] ?>
-                                </span>
-                            <?php endif; ?>
-                        </div>
+                        <div style="font-size:0.75rem;color:var(--gray-500);margin-bottom:2px;"><?= $item['label'] ?></div>
                         <div style="font-size:0.9rem;font-weight:600;color:var(--dark);"><?= htmlspecialchars($item['val']) ?></div>
                     </div>
                 </div>

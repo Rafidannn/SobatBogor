@@ -52,7 +52,9 @@ class DestinationAdminController extends Controller {
         $address     = trim($_POST['address'] ?? '');
         $latitude    = !empty($_POST['latitude']) ? (float) $_POST['latitude'] : null;
         $longitude   = !empty($_POST['longitude']) ? (float) $_POST['longitude'] : null;
-        $ticketPrice = (float) ($_POST['ticket_price'] ?? 0);
+        $ticketPriceWeekday = (float) ($_POST['ticket_price_weekday'] ?? $_POST['ticket_price'] ?? 0);
+        $ticketPriceWeekend = (float) ($_POST['ticket_price_weekend'] ?? $_POST['ticket_price'] ?? 0);
+        $ticketPrice = $ticketPriceWeekday;
         $openHours   = trim($_POST['open_hours'] ?? '');
         $isFeatured  = isset($_POST['is_featured']) ? 1 : 0;
 
@@ -77,9 +79,11 @@ class DestinationAdminController extends Controller {
             'address'      => $address,
             'latitude'     => $latitude,
             'longitude'    => $longitude,
-            'ticket_price' => $ticketPrice,
-            'open_hours'   => $openHours,
-            'is_featured'  => $isFeatured
+            'ticket_price'         => $ticketPrice,
+            'ticket_price_weekday' => $ticketPriceWeekday,
+            'ticket_price_weekend' => $ticketPriceWeekend,
+            'open_hours'           => $openHours,
+            'is_featured'          => $isFeatured
         ]);
 
         if ($success) {
@@ -133,7 +137,9 @@ class DestinationAdminController extends Controller {
         $address     = trim($_POST['address'] ?? '');
         $latitude    = !empty($_POST['latitude']) ? (float) $_POST['latitude'] : null;
         $longitude   = !empty($_POST['longitude']) ? (float) $_POST['longitude'] : null;
-        $ticketPrice = (float) ($_POST['ticket_price'] ?? 0);
+        $ticketPriceWeekday = (float) ($_POST['ticket_price_weekday'] ?? $_POST['ticket_price'] ?? 0);
+        $ticketPriceWeekend = (float) ($_POST['ticket_price_weekend'] ?? $_POST['ticket_price'] ?? 0);
+        $ticketPrice = $ticketPriceWeekday;
         $openHours   = trim($_POST['open_hours'] ?? '');
         $isFeatured  = isset($_POST['is_featured']) ? 1 : 0;
 
@@ -159,9 +165,11 @@ class DestinationAdminController extends Controller {
             'address'      => $address,
             'latitude'     => $latitude,
             'longitude'    => $longitude,
-            'ticket_price' => $ticketPrice,
-            'open_hours'   => $openHours,
-            'is_featured'  => $isFeatured
+            'ticket_price'         => $ticketPrice,
+            'ticket_price_weekday' => $ticketPriceWeekday,
+            'ticket_price_weekend' => $ticketPriceWeekend,
+            'open_hours'           => $openHours,
+            'is_featured'          => $isFeatured
         ]);
 
         // Tangani penetapan gambar utama baru jika diubah

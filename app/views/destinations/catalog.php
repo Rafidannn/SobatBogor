@@ -238,19 +238,26 @@ function renderStars(float $rating): string {
                                 <i class="fas fa-map-marker-alt me-1" style="color:var(--primary);"></i>
                                 <?= htmlspecialchars($dest['address'] ?? 'Bogor') ?>
                             </p>
-                            <?php if ($dest['open_hours']): ?>
-                            <?php $status = getDestinationStatus($dest['open_hours']); ?>
+                            <?php $status = getDestinationStatus($dest['open_hours'] ?? ''); ?>
                             <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
-                                <span class="badge" style="<?= $status['style'] ?>; font-size:0.7rem; padding:0.22rem 0.5rem; border-radius:30px; font-weight:600;">
+                                <span class="badge" style="<?= $status['style'] ?>; font-size:0.7rem; padding:0.22rem 0.5rem; border-radius:30px; font-weight:600;" title="<?= htmlspecialchars($status['detail']) ?>">
                                     <?= $status['label'] ?>
                                 </span>
-                                <span style="font-size:0.76rem; color:var(--gray-500); font-family:'Outfit',sans-serif;">
-                                    <i class="fas fa-clock me-1" style="color:var(--gray-400);"></i><?= htmlspecialchars($dest['open_hours']) ?>
-                                </span>
+                                <?php if ($status['status'] === 'tutup'): ?>
+                                    <span class="text-danger small fw-semibold" style="font-size:0.72rem;">
+                                        <?= htmlspecialchars($status['detail']) ?>
+                                    </span>
+                                <?php endif; ?>
                             </div>
-                            <?php endif; ?>
                             <div class="card-footer-info mt-auto">
-                                <div class="ticket-price"><?= formatPrice($dest['ticket_price']) ?></div>
+                                <?php $pricing = getDestinationPricing($dest); ?>
+                                <div>
+                                    <div class="ticket-price"><?= $pricing['formatted_today'] ?> <span style="font-size:0.7rem;font-weight:normal;color:var(--gray-500);">/ orang</span></div>
+                                    <div style="font-size:0.7rem;color:var(--gray-500);">
+                                        <span>WD: <?= $pricing['formatted_weekday'] ?></span> | 
+                                        <span>WE: <?= $pricing['formatted_weekend'] ?></span>
+                                    </div>
+                                </div>
                                 <div class="rating-stars">
                                     <?= renderStars((float)$dest['avg_rating']) ?>
                                     <span style="color:var(--gray-500);font-size:0.76rem;margin-left:4px;">

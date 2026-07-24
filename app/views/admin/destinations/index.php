@@ -17,7 +17,7 @@
                             <th>Foto</th>
                             <th>Nama Wisata</th>
                             <th>Kategori</th>
-                            <th>Harga Tiket</th>
+                            <th style="min-width: 140px;">Harga Tiket</th>
                             <th>Jam Buka</th>
                             <th>Status</th>
                             <th class="text-end px-4" style="width: 220px;">Aksi</th>
@@ -30,6 +30,7 @@
                             </tr>
                         <?php else: ?>
                             <?php foreach ($destinations as $index => $dest): ?>
+                                <?php $pricing = getDestinationPricing($dest); ?>
                                 <tr>
                                     <td class="px-4 text-muted fw-semibold"><?= $index + 1 ?></td>
                                     <td>
@@ -54,8 +55,9 @@
                                     <td>
                                         <span class="badge bg-success-subtle text-success"><?= htmlspecialchars($dest['category_name']) ?></span>
                                     </td>
-                                    <td class="fw-semibold text-dark">
-                                        <?= ($dest['ticket_price'] > 0) ? 'Rp ' . number_format($dest['ticket_price'], 0, ',', '.') : '<span class="text-success fw-bold">Gratis</span>' ?>
+                                    <td class="small">
+                                        <div><span class="text-muted">WD:</span> <strong class="text-dark"><?= $pricing['formatted_weekday'] ?></strong></div>
+                                        <div><span class="text-muted">WE:</span> <strong class="text-primary"><?= $pricing['formatted_weekend'] ?></strong></div>
                                     </td>
                                     <td>
                                         <div class="small fw-semibold"><?= htmlspecialchars($dest['open_hours'] ?: '-') ?></div>

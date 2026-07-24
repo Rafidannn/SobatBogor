@@ -35,13 +35,22 @@
                         </select>
                     </div>
 
-                    <!-- Tiket Masuk -->
-                    <div class="col-md-6 mb-3">
-                        <label for="ticket_price" class="form-label fw-semibold">Harga Tiket Masuk (IDR)</label>
+                    <!-- Tiket Masuk Weekday & Weekend -->
+                    <div class="col-md-3 mb-3">
+                        <label for="ticket_price_weekday" class="form-label fw-semibold">Harga Tiket Weekday (Hari Kerja)</label>
                         <div class="input-group">
                             <span class="input-group-text">Rp</span>
-                            <input type="number" class="form-control" id="ticket_price" name="ticket_price" 
-                                   value="<?= htmlspecialchars($destination['ticket_price'] ?? '0') ?>" 
+                            <input type="number" class="form-control" id="ticket_price_weekday" name="ticket_price_weekday" 
+                                   value="<?= htmlspecialchars($destination['ticket_price_weekday'] ?? $destination['ticket_price'] ?? '0') ?>" 
+                                   min="0" placeholder="0 = Gratis">
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="ticket_price_weekend" class="form-label fw-semibold">Harga Tiket Weekend (Akhir Pekan)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">Rp</span>
+                            <input type="number" class="form-control" id="ticket_price_weekend" name="ticket_price_weekend" 
+                                   value="<?= htmlspecialchars($destination['ticket_price_weekend'] ?? $destination['ticket_price'] ?? '0') ?>" 
                                    min="0" placeholder="0 = Gratis">
                         </div>
                     </div>
