@@ -13,9 +13,9 @@ $userName    = $_SESSION['user_name'] ?? '';
             <img src="<?= BASE_URL ?>/assets/img/bulet.png"
                  alt="SobatBogor Logo"
                  style="height:42px;width:42px;object-fit:contain;">
-            <img src="<?= BASE_URL ?>/assets/img/textkebogoran.png"
-                 alt="Sobat Bogor"
-                 style="height:26px;object-fit:contain;max-width:140px;">
+            <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.25rem;line-height:1;letter-spacing:-0.5px;">
+                <span style="color:#00529E;">Sobat</span><span style="color:#528934;">Bogor</span>
+            </span>
         </a>
 
         <!-- Toggler -->
@@ -76,6 +76,11 @@ $userName    = $_SESSION['user_name'] ?? '';
                             <li>
                                 <a class="dropdown-item" href="<?= BASE_URL ?>/wishlist">
                                     <i class="fas fa-heart me-2 text-danger"></i>Wishlist Saya
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="<?= BASE_URL ?>/my-reviews">
+                                    <i class="fas fa-comments me-2 text-primary"></i>Ulasan Saya
                                 </a>
                             </li>
                             <li>

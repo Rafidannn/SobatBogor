@@ -199,10 +199,43 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
                 <!-- Form Tambah Ulasan -->
                 <?php if (isset($_SESSION['user_id'])): ?>
                 <div class="info-card mt-4">
-                    <?php if ($hasReviewed): ?>
-                    <div class="text-center py-2">
-                        <i class="fas fa-check-circle" style="color:var(--secondary);font-size:1.5rem;"></i>
-                        <p class="mt-2 mb-0" style="color:var(--secondary);font-weight:600;">Kamu sudah memberikan ulasan. Terima kasih!</p>
+                    <?php if ($hasReviewed && !empty($userReview)): ?>
+                    <div class="p-3" style="background:#f8fafc;border-radius:14px;border:1px solid #e2e8f0;">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+                            <div>
+                                <span class="fw-bold text-dark" style="font-size:0.95rem;">Ulasan Anda</span>
+                                <?php if ($userReview['is_visible'] == 1): ?>
+                                <span class="badge bg-success-subtle text-success ms-2 px-2 py-1 rounded-pill" style="font-size:0.75rem;">
+                                    <i class="fas fa-check-circle me-1"></i>Dipublikasikan
+                                </span>
+                                <?php else: ?>
+                                <span class="badge bg-warning-subtle text-warning-emphasis ms-2 px-2 py-1 rounded-pill" style="font-size:0.75rem;">
+                                    <i class="fas fa-clock me-1"></i>Menunggu Moderasi Admin
+                                </span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#editUserReviewModal">
+                                    <i class="fas fa-edit me-1"></i>Edit
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#deleteUserReviewModal">
+                                    <i class="fas fa-trash-alt me-1"></i>Hapus
+                                </button>
+                            </div>
+                        </div>
+                        <div><?= renderStarsDetail((float)$userReview['rating'], '0.85rem') ?></div>
+                        <?php if ($userReview['comment']): ?>
+                        <p class="mt-2 mb-1 text-secondary" style="font-size:0.9rem;">
+                            "<?= htmlspecialchars($userReview['comment']) ?>"
+                        </p>
+                        <?php endif; ?>
+                        <?php if (!empty($userReview['photo_path'])): ?>
+                        <div class="mt-2">
+                            <a href="<?= BASE_URL ?>/<?= htmlspecialchars($userReview['photo_path']) ?>" target="_blank">
+                                <img src="<?= BASE_URL ?>/<?= htmlspecialchars($userReview['photo_path']) ?>" style="max-height:100px;border-radius:8px;border:1px solid #cbd5e1;">
+                            </a>
+                        </div>
+                        <?php endif; ?>
                     </div>
                     <?php else: ?>
                     <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">
@@ -607,6 +640,108 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<?php if (isset($_SESSION['user_id']) && !empty($userReview)): ?>
+<!-- Modal Edit Ulasan Detail Page -->
+<div class="modal fade" id="editUserReviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow" style="border-radius:16px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Edit Ulasan Anda</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="<?= BASE_URL ?>/reviews/update/<?= $userReview['id'] ?>" method="POST" enctype="multipart/form-data">
+                <div class="modal-body pt-3">
+                    <!-- Rating Selection -->
+                    <div class="mb-3">
+                        <label class="form-label fw-600 small">Rating Bintang</label>
+                        <div class="d-flex gap-2">
+                            <?php for ($s = 1; $s <= 5; $s++): ?>
+                            <label style="cursor:pointer;font-size:1.5rem;color:#d1d5db;">
+                                <input type="radio" name="rating" value="<?= $s ?>" 
+                                       <?= (int)$userReview['rating'] === $s ? 'checked' : '' ?> required style="display:none;"
+                                       onchange="updateDetailModalStars(<?= $s ?>)">
+                                <i class="<?= (int)$userReview['rating'] >= $s ? 'fas fa-star text-warning' : 'far fa-star' ?> detail-modal-star" 
+                                   data-val="<?= $s ?>"></i>
+                            </label>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
+
+                    <!-- Comment Input -->
+                    <div class="mb-3">
+                        <label class="form-label fw-600 small">Komentar Ulasan</label>
+                        <textarea name="comment" rows="3" class="form-control" style="border-radius:10px;font-size:0.9rem;"
+                                  placeholder="Tuliskan pengalamanmu..."><?= htmlspecialchars($userReview['comment'] ?? '') ?></textarea>
+                    </div>
+
+                    <!-- Photo Input -->
+                    <div class="mb-3">
+                        <label class="form-label fw-600 small">Foto Ulasan (Opsional)</label>
+                        <?php if (!empty($userReview['photo_path'])): ?>
+                        <div class="d-flex align-items-center gap-3 mb-2 p-2 rounded" style="background:#f8fafc;border:1px solid #e2e8f0;">
+                            <img src="<?= BASE_URL ?>/<?= htmlspecialchars($userReview['photo_path']) ?>" style="height:50px;width:50px;object-fit:cover;border-radius:6px;">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="remove_photo" value="1" id="rmPhotoDetail">
+                                <label class="form-check-label text-danger small fw-600" for="rmPhotoDetail">
+                                    Hapus Foto Ini
+                                </label>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                        <input type="file" name="review_photo" class="form-control form-control-sm" accept="image/jpeg,image/png,image/webp">
+                        <span class="text-muted style-small" style="font-size:0.75rem;">Upload foto baru untuk mengganti foto lama (Maks 3MB)</span>
+                    </div>
+
+                    <div class="alert alert-info py-2 small mb-0" style="border-radius:8px;">
+                        <i class="fas fa-info-circle me-1"></i> Perubahan ulasan akan ditinjau kembali oleh Admin.
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Delete Ulasan Detail Page -->
+<div class="modal fade" id="deleteUserReviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow" style="border-radius:16px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-danger">Hapus Ulasan Anda</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="<?= BASE_URL ?>/reviews/delete/<?= $userReview['id'] ?>" method="POST">
+                <div class="modal-body pt-3">
+                    Apakah Anda yakin ingin menghapus ulasan Anda untuk destinasi ini? Tindakan ini tidak dapat dibatalkan.
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4">Hapus Ulasan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateDetailModalStars(selectedVal) {
+    const stars = document.querySelectorAll('.detail-modal-star');
+    stars.forEach(star => {
+        const val = parseInt(star.getAttribute('data-val'));
+        if (val <= selectedVal) {
+            star.className = 'fas fa-star text-warning detail-modal-star';
+        } else {
+            star.className = 'far fa-star detail-modal-star';
+        }
+    });
+}
+</script>
+<?php endif; ?>
+
 <?php $scripts = ob_get_clean(); ?>
 
 

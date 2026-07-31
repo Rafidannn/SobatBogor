@@ -152,14 +152,12 @@ class DestinationController extends Controller {
             $isWishlisted = (bool)$wStmt->fetchColumn();
         }
 
-        // Apakah user sudah pernah submit ulasan
+        // Data ulasan milik user yang sedang login (jika ada)
+        $userReview  = null;
         $hasReviewed = false;
         if (isset($_SESSION['user_id'])) {
-            $rStmt = $db->prepare(
-                "SELECT id FROM reviews WHERE user_id = ? AND destination_id = ?"
-            );
-            $rStmt->execute([$_SESSION['user_id'], $destination['id']]);
-            $hasReviewed = (bool)$rStmt->fetchColumn();
+            $userReview  = $reviewModel->getUserReviewForDestination((int)$_SESSION['user_id'], (int)$destination['id']);
+            $hasReviewed = !empty($userReview);
         }
 
         // Flash message dari ReviewController
@@ -189,6 +187,7 @@ class DestinationController extends Controller {
             'destination'  => $destination,
             'images'       => $images,
             'reviews'      => $reviews,
+            'userReview'   => $userReview,
             'avgRating'    => $avgRating,
             'isWishlisted' => $isWishlisted,
             'hasReviewed'  => $hasReviewed,

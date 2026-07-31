@@ -185,7 +185,7 @@
                     <input class="form-check-input" type="checkbox" role="switch" id="link_is_active" name="link_is_active" value="1"
                            <?= (empty($existingLink) || $existingLink['is_active'] == 1) ? 'checked' : '' ?>>
                     <label class="form-check-label fw-semibold text-success" for="link_is_active">
-                        <i class="fa fa-toggle-on me-1"></i> Aktifkan Tombol Pesan Tiket
+                        <i class="  "></i> Aktifkan Tombol Pesan Tiket
                     </label>
                 </div>
                 <div class="d-flex justify-content-end">

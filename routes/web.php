@@ -21,7 +21,11 @@ $router->get('/logout',   'AuthController@logout');
 $router->get('/wishlist',              'WishlistController@index');
 $router->post('/wishlist/add',         'WishlistController@add');
 $router->post('/wishlist/remove',      'WishlistController@remove');
+$router->get('/my-reviews',             'ReviewController@myReviews');
 $router->post('/reviews/submit',       'ReviewController@submit');
+$router->post('/reviews/update/{id}',  'ReviewController@update');
+$router->post('/reviews/delete/{id}',  'ReviewController@delete');
+
 
 // --- Admin Routes ---
 $router->get('/admin',                         'admin\AdminController@dashboard');

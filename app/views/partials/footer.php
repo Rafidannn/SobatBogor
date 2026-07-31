@@ -7,9 +7,9 @@
                     <img src="<?= BASE_URL ?>/assets/img/bulet.png"
                          alt="SobatBogor Logo"
                          style="height:44px;width:44px;object-fit:contain;filter:brightness(1.1);">
-                    <img src="<?= BASE_URL ?>/assets/img/textkebogoran.png"
+                    <img src="<?= BASE_URL ?>/assets/img/textkebogoran_light.png"
                          alt="Sobat Bogor"
-                         style="height:28px;object-fit:contain;max-width:150px;filter:brightness(0) invert(1);">
+                         style="height:30px;object-fit:contain;max-width:155px;">
                 </div>
                 <p style="font-size:0.9rem;line-height:1.7;">
                     Platform wisata digital untuk menemukan, menyimpan, dan menjelajahi keindahan destinasi di Kota & Kabupaten Bogor.
