@@ -17,6 +17,12 @@ $router->get('/register', 'AuthController@showRegister');
 $router->post('/register','AuthController@register');
 $router->get('/logout',   'AuthController@logout');
 
+// --- OAuth Social Login ---
+$router->get('/auth/google',            'AuthController@redirectToGoogle');
+$router->get('/auth/google/callback',   'AuthController@handleGoogleCallback');
+$router->get('/auth/facebook',          'AuthController@redirectToFacebook');
+$router->get('/auth/facebook/callback', 'AuthController@handleFacebookCallback');
+
 // --- User (protected) Routes ---
 $router->get('/wishlist',              'WishlistController@index');
 $router->post('/wishlist/add',         'WishlistController@add');
