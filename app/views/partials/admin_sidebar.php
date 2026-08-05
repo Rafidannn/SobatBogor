@@ -45,6 +45,12 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
                 Moderasi Ulasan
             </a>
         </li>
+        <li class="<?= str_starts_with($currentPath, '/admin/hotels') ? 'active' : '' ?>">
+            <a href="<?= BASE_URL ?>/admin/hotels">
+                <i class="fa fa-hotel" style="width:18px;text-align:center;"></i>
+                Penginapan Hotel
+            </a>
+        </li>
 
         <hr class="sidebar-divider">
 

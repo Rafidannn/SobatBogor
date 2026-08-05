@@ -38,6 +38,12 @@ $userName    = $_SESSION['user_name'] ?? '';
                         <i class="fas fa-map-marked-alt me-1 d-lg-none"></i>Wisata
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= str_starts_with($currentPath, '/hotels') ? 'active' : '' ?>"
+                       href="<?= BASE_URL ?>/hotels">
+                        <i class="fas fa-hotel me-1 d-lg-none"></i>Penginapan
+                    </a>
+                </li>
                 <?php if ($isLoggedIn): ?>
                 <li class="nav-item">
                     <a class="nav-link <?= str_starts_with($currentPath, '/wishlist') ? 'active' : '' ?>"

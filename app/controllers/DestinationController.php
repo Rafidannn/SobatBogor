@@ -7,6 +7,7 @@ require_once ROOT_PATH . '/app/models/Category.php';
 require_once ROOT_PATH . '/app/models/Review.php';
 require_once ROOT_PATH . '/app/models/DestinationImage.php';
 require_once ROOT_PATH . '/app/models/DestinationLink.php';
+require_once ROOT_PATH . '/app/models/Hotel.php';
 
 /**
  * DestinationController.php
@@ -181,6 +182,10 @@ class DestinationController extends Controller {
         $linkModel   = new DestinationLink();
         $ticketLink  = $linkModel->findActiveByDestinationId((int)$destination['id']);
 
+        // Hotel terdekat
+        $hotelModel    = new Hotel();
+        $nearbyHotels  = $hotelModel->getByDestination((int)$destination['id']);
+
         $this->view('destinations/detail', [
             'title'        => $destination['name'] . ' — Wisata Bogor',
             'metaDesc'     => substr(strip_tags($destination['description'] ?? ''), 0, 155),
@@ -195,6 +200,7 @@ class DestinationController extends Controller {
             'flashMsg'     => $flashMsg,
             'weather'      => $weather,
             'ticketLink'   => $ticketLink,
+            'nearbyHotels' => $nearbyHotels,
         ]);
     }
 }

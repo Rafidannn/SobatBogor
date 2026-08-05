@@ -16,6 +16,7 @@ config/app.php
 /public/assets/uploads/*
 !/public/assets/uploads/.gitkeep
 !/public/assets/uploads/destinations/
+!/public/assets/uploads/hotels/
 !/public/assets/uploads/kebun_raya_bogor_1.jpg
 !/public/assets/uploads/kebun_raya_bogor_2.jpg
 

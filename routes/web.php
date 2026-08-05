@@ -9,6 +9,8 @@
 $router->get('/',                   'HomeController@index');
 $router->get('/destinations',       'DestinationController@catalog');
 $router->get('/destinations/{slug}','DestinationController@detail');
+$router->get('/hotels',             'HotelController@index');
+$router->get('/hotels/{id}',        'HotelController@detail');
 
 // --- Auth Routes ---
 $router->get('/login',    'AuthController@showLogin');
@@ -49,3 +51,11 @@ $router->get('/admin/reviews',                 'admin\ReviewAdminController@inde
 $router->post('/admin/reviews/hide/{id}',      'admin\ReviewAdminController@hide');
 $router->post('/admin/reviews/delete/{id}',    'admin\ReviewAdminController@delete');
 $router->post('/admin/destinations/link/save/{id}', 'admin\DestinationLinkAdminController@save');
+
+// --- Admin Hotel Routes ---
+$router->get('/admin/hotels',                  'admin\HotelAdminController@index');
+$router->get('/admin/hotels/create',           'admin\HotelAdminController@create');
+$router->post('/admin/hotels/store',           'admin\HotelAdminController@store');
+$router->get('/admin/hotels/edit/{id}',        'admin\HotelAdminController@edit');
+$router->post('/admin/hotels/update/{id}',     'admin\HotelAdminController@update');
+$router->post('/admin/hotels/delete/{id}',     'admin\HotelAdminController@delete');

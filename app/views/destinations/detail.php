@@ -486,6 +486,69 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
             </div>
             <?php endif; ?>
 
+            <!-- Penginapan & Hotel Terdekat -->
+            <?php if (!empty($nearbyHotels)): ?>
+            <div class="mt-3" data-aos="fade-left" data-aos-delay="250">
+                <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">
+                    <i class="fas fa-hotel me-2" style="color:var(--primary);"></i>Penginapan Terdekat
+                </h3>
+                <?php foreach ($nearbyHotels as $hotel): ?>
+                <div style="background:#fff;border:1px solid var(--gray-200);border-radius:14px;overflow:hidden;margin-bottom:12px;transition:var(--transition);"
+                     onmouseover="this.style.borderColor='var(--primary)';this.style.boxShadow='0 4px 15px rgba(26,107,191,0.12)'"
+                     onmouseout="this.style.borderColor='var(--gray-200)';this.style.boxShadow='none'">
+                    <div class="d-flex">
+                        <!-- Foto Hotel -->
+                        <div style="width:90px;flex-shrink:0;position:relative;">
+                            <?php if ($hotel['image_path']): ?>
+                            <img src="<?= BASE_URL ?>/<?= htmlspecialchars($hotel['image_path']) ?>"
+                                 alt="<?= htmlspecialchars($hotel['name']) ?>"
+                                 style="width:100%;height:100%;object-fit:cover;min-height:90px;">
+                            <?php else: ?>
+                            <div style="width:90px;height:90px;background:linear-gradient(135deg,#1a6bbf20,#3a9e3a20);display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-hotel" style="font-size:1.5rem;color:var(--primary);opacity:0.5;"></i>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                        <!-- Info Hotel -->
+                        <div style="padding:0.6rem 0.75rem;flex:1;min-width:0;">
+                            <div style="font-weight:700;font-size:0.82rem;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;">
+                                <?= htmlspecialchars($hotel['name']) ?>
+                            </div>
+                            <!-- Bintang -->
+                            <div style="margin-bottom:3px;">
+                                <?php for ($s = 1; $s <= 5; $s++): ?>
+                                <i class="fas fa-star" style="font-size:0.62rem;color:<?= $s <= $hotel['star_rating'] ? '#f59e0b' : '#e2e8f0' ?>;"></i>
+                                <?php endfor; ?>
+                            </div>
+                            <div style="font-size:0.72rem;color:var(--gray-500);margin-bottom:4px;">
+                                <i class="fas fa-map-marker-alt me-1" style="color:var(--primary);"></i>
+                                <?= htmlspecialchars($hotel['distance_text'] ?? '') ?>
+                            </div>
+                            <div style="font-size:0.78rem;font-weight:700;color:var(--primary);margin-bottom:6px;">
+                                Mulai Rp <?= number_format($hotel['price_start'], 0, ',', '.') ?>/malam
+                            </div>
+                            <!-- Tombol Booking -->
+                            <div class="d-flex gap-1 flex-wrap">
+                                <?php if ($hotel['traveloka_url']): ?>
+                                <a href="<?= htmlspecialchars($hotel['traveloka_url']) ?>" target="_blank" rel="noopener"
+                                   style="font-size:0.65rem;padding:3px 8px;border-radius:20px;background:#0064d2;color:#fff;text-decoration:none;font-weight:600;white-space:nowrap;">
+                                    Traveloka
+                                </a>
+                                <?php endif; ?>
+                                <?php if ($hotel['booking_url']): ?>
+                                <a href="<?= htmlspecialchars($hotel['booking_url']) ?>" target="_blank" rel="noopener"
+                                   style="font-size:0.65rem;padding:3px 8px;border-radius:20px;background:#003580;color:#fff;text-decoration:none;font-weight:600;white-space:nowrap;">
+                                    Booking.com
+                                </a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+
         </div>
     </div>
 </div>
