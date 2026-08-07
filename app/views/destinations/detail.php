@@ -19,13 +19,18 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
 
 <!-- Flash Messages -->
 <?php if ($flashMsg): ?>
-<div class="container pt-3">
-    <div class="alert alert-<?= $flashMsg['type'] === 'success' ? 'success' : 'danger' ?> alert-dismissible fade show rounded-3" role="alert">
-        <i class="fas fa-<?= $flashMsg['type'] === 'success' ? 'check-circle' : 'exclamation-circle' ?> me-2"></i>
-        <?= htmlspecialchars($flashMsg['message']) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        Swal.fire({
+            icon: '<?= $flashMsg['type'] === 'success' ? 'success' : 'error' ?>',
+            title: '<?= $flashMsg['type'] === 'success' ? 'Berhasil!' : 'Oops...' ?>',
+            text: '<?= htmlspecialchars($flashMsg['message']) ?>',
+            confirmButtonColor: '#00529E',
+            timer: 3500,
+            timerProgressBar: true
+        });
+    });
+</script>
 <?php endif; ?>
 
 <!-- Breadcrumb -->
@@ -493,7 +498,8 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
                     <i class="fas fa-hotel me-2" style="color:var(--primary);"></i>Penginapan Terdekat
                 </h3>
                 <?php foreach ($nearbyHotels as $hotel): ?>
-                <div style="background:#fff;border:1px solid var(--gray-200);border-radius:14px;overflow:hidden;margin-bottom:12px;transition:var(--transition);"
+                <div style="cursor:pointer;background:#fff;border:1px solid var(--gray-200);border-radius:14px;overflow:hidden;margin-bottom:12px;transition:var(--transition);"
+                     onclick="window.location.href='<?= BASE_URL ?>/hotels/<?= $hotel['id'] ?>'"
                      onmouseover="this.style.borderColor='var(--primary)';this.style.boxShadow='0 4px 15px rgba(26,107,191,0.12)'"
                      onmouseout="this.style.borderColor='var(--gray-200)';this.style.boxShadow='none'">
                     <div class="d-flex">
@@ -530,13 +536,13 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
                             <!-- Tombol Booking -->
                             <div class="d-flex gap-1 flex-wrap">
                                 <?php if ($hotel['traveloka_url']): ?>
-                                <a href="<?= htmlspecialchars($hotel['traveloka_url']) ?>" target="_blank" rel="noopener"
+                                <a href="<?= htmlspecialchars($hotel['traveloka_url']) ?>" target="_blank" rel="noopener" onclick="event.stopPropagation();"
                                    style="font-size:0.65rem;padding:3px 8px;border-radius:20px;background:#0064d2;color:#fff;text-decoration:none;font-weight:600;white-space:nowrap;">
                                     Traveloka
                                 </a>
                                 <?php endif; ?>
                                 <?php if ($hotel['booking_url']): ?>
-                                <a href="<?= htmlspecialchars($hotel['booking_url']) ?>" target="_blank" rel="noopener"
+                                <a href="<?= htmlspecialchars($hotel['booking_url']) ?>" target="_blank" rel="noopener" onclick="event.stopPropagation();"
                                    style="font-size:0.65rem;padding:3px 8px;border-radius:20px;background:#003580;color:#fff;text-decoration:none;font-weight:600;white-space:nowrap;">
                                     Booking.com
                                 </a>

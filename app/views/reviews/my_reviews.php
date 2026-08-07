@@ -31,11 +31,18 @@ function renderStarsMyReview(float $rating): string {
 
     <!-- Flash Message Notification -->
     <?php if (!empty($flashMsg)): ?>
-    <div class="alert alert-<?= $flashMsg['type'] === 'success' ? 'success' : 'danger' ?> alert-dismissible fade show mb-4 shadow-sm" role="alert" style="border-radius:12px;">
-        <i class="<?= $flashMsg['type'] === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle' ?> me-2"></i>
-        <?= htmlspecialchars($flashMsg['message']) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            Swal.fire({
+                icon: '<?= $flashMsg['type'] === 'success' ? 'success' : 'error' ?>',
+                title: '<?= $flashMsg['type'] === 'success' ? 'Berhasil!' : 'Oops...' ?>',
+                text: '<?= htmlspecialchars($flashMsg['message']) ?>',
+                confirmButtonColor: '#00529E',
+                timer: 3500,
+                timerProgressBar: true
+            });
+        });
+    </script>
     <?php endif; ?>
 
     <?php if (empty($reviews)): ?>

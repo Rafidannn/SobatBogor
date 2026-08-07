@@ -88,6 +88,12 @@ class AuthController extends Controller {
         // Set session setelah login berhasil
         $this->setUserSession($user);
 
+        // Set "Remember Me" cookie jika dicentang (berlaku 30 hari)
+        if (isset($_POST['remember'])) {
+            $token = $user['id'] . '|' . hash_hmac('sha256', $user['id'], 'SobatBogorRememberMeSaltKey');
+            setcookie('remember_user', $token, time() + 2592000, '/', '', false, true);
+        }
+
         // Redirect ke URL sebelumnya jika ada, atau ke beranda
         $redirect = $_SESSION['redirect_after_login'] ?? '/';
         unset($_SESSION['redirect_after_login']);
@@ -145,6 +151,10 @@ class AuthController extends Controller {
     // ── Logout ──────────────────────────────────────────────────────
     public function logout(): void {
         session_destroy();
+        // Hapus cookie "Remember Me"
+        if (isset($_COOKIE['remember_user'])) {
+            setcookie('remember_user', '', time() - 3600, '/');
+        }
         $this->redirect('/');
     }
 
