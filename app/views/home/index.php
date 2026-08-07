@@ -76,6 +76,23 @@ function renderStars(float $rating): string {
                     <div style="width:1px;background:rgba(255,255,255,0.2);"></div>
                     <?php endforeach; ?>
                 </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex flex-wrap gap-2 mt-4" data-aos="fade-up" data-aos-delay="400">
+                    <a href="<?= BASE_URL ?>/peta" class="btn d-inline-flex align-items-center gap-2 rounded-pill px-4 py-2"
+                       style="background:rgba(255,255,255,0.12);backdrop-filter:blur(8px);border:1.5px solid rgba(255,255,255,0.25);color:#fff;font-family:'Outfit',sans-serif;font-weight:600;font-size:0.88rem;transition:all 0.2s;"
+                       onmouseover="this.style.background='rgba(255,255,255,0.2)'"
+                       onmouseout="this.style.background='rgba(255,255,255,0.12)'">
+                        <i class="fas fa-map-marked-alt" style="color:#fb923c;"></i>
+                        Jelajahi Peta Wisata
+                    </a>
+                    <a href="<?= BASE_URL ?>/itinerary" class="btn d-inline-flex align-items-center gap-2 rounded-pill px-4 py-2"
+                       style="background:linear-gradient(135deg, #ea580c, #f97316);color:#fff;font-family:'Outfit',sans-serif;font-weight:600;font-size:0.88rem;box-shadow:0 4px 15px rgba(234,88,12,0.35);transition:all 0.2s;">
+                        <i class="fas fa-compass"></i>
+                        Buat Itinerary Otomatis
+                    </a>
+                </div>
+
             </div>
 
 

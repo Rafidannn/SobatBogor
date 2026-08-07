@@ -1,6 +1,12 @@
 <?php
 // Deteksi halaman aktif untuk nav-link.active
-$currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$_rawPath    = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/';
+$_basePath   = parse_url(BASE_URL, PHP_URL_PATH) ?? '';
+$_basePath   = rtrim($_basePath, '/');
+$currentPath = ($_basePath !== '' && str_starts_with($_rawPath, $_basePath))
+               ? substr($_rawPath, strlen($_basePath))
+               : $_rawPath;
+if ($currentPath === '' || $currentPath === false) $currentPath = '/';
 $isLoggedIn  = isset($_SESSION['user_id']);
 $isAdmin     = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
 $userName    = $_SESSION['user_name'] ?? '';
@@ -44,6 +50,19 @@ $userName    = $_SESSION['user_name'] ?? '';
                         <i class="fas fa-hotel me-1 d-lg-none"></i>Penginapan
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= str_starts_with($currentPath, '/peta') ? 'active' : '' ?>"
+                       href="<?= BASE_URL ?>/peta">
+                        <i class="fas fa-map-marked-alt me-1 d-lg-none"></i>Peta
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= str_starts_with($currentPath, '/itinerary') ? 'active' : '' ?>"
+                       href="<?= BASE_URL ?>/itinerary">
+                        <i class="fas fa-route me-1 d-lg-none"></i>Itinerary
+                    </a>
+                </li>
+
                 <?php if ($isLoggedIn): ?>
                 <li class="nav-item">
                     <a class="nav-link <?= str_starts_with($currentPath, '/wishlist') ? 'active' : '' ?>"
