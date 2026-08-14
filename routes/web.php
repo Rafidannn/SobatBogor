@@ -39,6 +39,15 @@ $router->post('/reviews/submit',       'ReviewController@submit');
 $router->post('/reviews/update/{id}',  'ReviewController@update');
 $router->post('/reviews/delete/{id}',  'ReviewController@delete');
 
+// --- Itinerary Builder (protected) Routes ---
+$router->get('/itinerary/builder',             'ItineraryBuilderController@index');
+$router->get('/itinerary/builder/create',      'ItineraryBuilderController@create');
+$router->post('/itinerary/builder/store',      'ItineraryBuilderController@store');
+$router->get('/itinerary/builder/{id}',        'ItineraryBuilderController@edit');
+$router->post('/itinerary/builder/{id}/save',   'ItineraryBuilderController@saveState');
+$router->post('/itinerary/builder/{id}/delete', 'ItineraryBuilderController@delete');
+
+
 
 // --- Admin Routes ---
 $router->get('/admin',                         'admin\AdminController@dashboard');

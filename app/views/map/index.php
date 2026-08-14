@@ -399,6 +399,29 @@ function mapFormatPrice($price): string {
     <!-- ── TOP CONTROL BAR ──────────────────────────── -->
     <div class="map-control-bar">
 
+        <?php if (isset($itineraryRoute) && $itineraryRoute && isset($itineraryInfo)): ?>
+        <!-- Mode Rute Itinerary Active Banner -->
+        <div class="d-flex align-items-center justify-content-between w-100 flex-wrap gap-2 py-1.5 px-3 mb-1" style="background:linear-gradient(135deg, #0d1529 0%, #1a2a4a 100%);border-radius:14px;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.15);">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="badge" style="background:linear-gradient(135deg,#1a6bbf,#3a9e3a);font-weight:800;font-size:0.75rem;padding:0.3rem 0.75rem;border-radius:20px;letter-spacing:0.5px;">
+                    <i class="fas fa-route me-1"></i>MODE RUTE ITINERARY
+                </span>
+                <strong style="font-size:1rem;color:#fff;font-weight:800;"><?= htmlspecialchars($itineraryInfo['title']) ?></strong>
+                <span style="font-size:0.8rem;color:rgba(255,255,255,0.65);">
+                    (<?= count($itineraryRoute['all']) ?> Destinasi · <?= count($itineraryRoute['days']) ?> Hari)
+                </span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <a href="<?= BASE_URL ?>/itinerary/builder/<?= (int)$itineraryInfo['id'] ?>" class="btn btn-sm text-white font-weight-bold" style="background:#1a6bbf;border-radius:8px;font-weight:700;font-size:0.8rem;padding:0.35rem 0.85rem;">
+                    <i class="fas fa-edit me-1"></i>Edit di Builder
+                </a>
+                <a href="<?= BASE_URL ?>/peta" class="btn btn-sm btn-outline-light" style="border-radius:8px;font-size:0.8rem;padding:0.35rem 0.85rem;">
+                    <i class="fas fa-times me-1"></i>Tutup Mode Rute
+                </a>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <!-- Search -->
         <div class="map-search-wrap">
             <i class="fas fa-search"></i>
@@ -473,9 +496,14 @@ function mapFormatPrice($price): string {
 // ════════════════════════════════════════════════════════════
 //  DATA dari PHP (JSON)
 // ════════════════════════════════════════════════════════════
-const BASE_URL      = '<?= BASE_URL ?>';
-const DESTINATIONS  = <?= json_encode(array_values($destinations), JSON_UNESCAPED_UNICODE) ?>;
-const HOTELS        = <?= json_encode(array_values($hotels), JSON_UNESCAPED_UNICODE) ?>;
+const BASE_URL        = '<?= BASE_URL ?>';
+const DESTINATIONS    = <?= json_encode(array_values($destinations), JSON_UNESCAPED_UNICODE) ?>;
+const HOTELS          = <?= json_encode(array_values($hotels), JSON_UNESCAPED_UNICODE) ?>;
+const ITINERARY_ROUTE = <?= isset($itineraryRoute) && $itineraryRoute ? json_encode($itineraryRoute, JSON_UNESCAPED_UNICODE) : 'null' ?>;
+const ITINERARY_INFO  = <?= isset($itineraryInfo) && $itineraryInfo ? json_encode($itineraryInfo, JSON_UNESCAPED_UNICODE) : 'null' ?>;
+
+// Day Palette
+const DAY_COLORS = ['#1a6bbf', '#3a9e3a', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4'];
 
 // ════════════════════════════════════════════════════════════
 //  LEAFLET MAP INIT
@@ -537,6 +565,25 @@ function makeHotelIcon(stars) {
     });
 }
 
+function makeNumberedMarkerIcon(seq, color) {
+    return L.divIcon({
+        className: '',
+        html: `<div style="
+            width:32px;height:32px;
+            background:${color};
+            border-radius:50%;
+            border:2.5px solid #fff;
+            box-shadow:0 4px 12px rgba(0,0,0,0.35);
+            display:flex;align-items:center;justify-content:center;
+            color:#fff;font-weight:800;font-family:'Outfit',sans-serif;font-size:0.85rem;">
+            ${seq}
+        </div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -18]
+    });
+}
+
 // ════════════════════════════════════════════════════════════
 //  FORMAT HELPERS
 // ════════════════════════════════════════════════════════════
@@ -585,7 +632,7 @@ function buildDestPopup(d) {
             <div class="popup-card-price">${price} ${priceUnit}</div>
             <div style="display:flex;align-items:center;gap:5px;margin-bottom:8px;">
                 ${renderStars(d.avg_rating)}
-                <span style="font-size:0.68rem;color:#64748b;">(${d.review_count})</span>
+                <span style="font-size:0.68rem;color:#64748b;">(${d.review_count || 0})</span>
             </div>
             <div style="display:flex;gap:6px;">
                 <a href="${BASE_URL}/destinations/${d.slug}" class="popup-btn" style="flex:1;">
@@ -638,36 +685,121 @@ function buildHotelPopup(h) {
 // ════════════════════════════════════════════════════════════
 let destMarkers  = [];  // [{marker, leaflet, data}]
 let hotelMarkers = [];  // [{marker, leaflet, data}]
+let itinMarkers  = [];  // [{leaflet, data, dayNum, seqNum}]
+let destLayer    = null;
+let hotelLayer   = null;
 let userMarker   = null;
 
-// Create all markers (but don't add to map yet)
-DESTINATIONS.forEach(d => {
-    if (!d.latitude || !d.longitude) return;
-    const lm = L.marker([parseFloat(d.latitude), parseFloat(d.longitude)], {
-        icon: makeDestIcon(d.category_icon)
-    }).bindPopup(buildDestPopup(d), { maxWidth: 240 });
-    destMarkers.push({ leaflet: lm, data: d });
-});
+if (ITINERARY_ROUTE && ITINERARY_ROUTE.days) {
+    const allItinCoords = [];
+    const container = document.getElementById('sidebarList');
+    const header    = document.getElementById('sidebarHeader');
+    if (header && ITINERARY_INFO) {
+        header.innerHTML = `<i class="fas fa-route text-primary me-1"></i> ${ITINERARY_INFO.title}`;
+    }
 
-HOTELS.forEach(h => {
-    if (!h.latitude || !h.longitude) return;
-    const lm = L.marker([parseFloat(h.latitude), parseFloat(h.longitude)], {
-        icon: makeHotelIcon(h.star_rating)
-    }).bindPopup(buildHotelPopup(h), { maxWidth: 240 });
-    hotelMarkers.push({ leaflet: lm, data: h });
-});
+    let sidebarHtml = '';
 
-// Layer groups
-const destLayer  = L.layerGroup(destMarkers.map(m => m.leaflet)).addTo(map);
-const hotelLayer = L.layerGroup(hotelMarkers.map(m => m.leaflet)).addTo(map);
+    Object.keys(ITINERARY_ROUTE.days).forEach(dayKey => {
+        const dayNum = parseInt(dayKey, 10);
+        const color  = DAY_COLORS[(dayNum - 1) % DAY_COLORS.length];
+        const items  = ITINERARY_ROUTE.days[dayKey];
+        const dayCoords = [];
 
-// Fit map bounds to all markers
-const allCoords = [
-    ...destMarkers.map(m => [parseFloat(m.data.latitude), parseFloat(m.data.longitude)]),
-    ...hotelMarkers.map(m => [parseFloat(m.data.latitude), parseFloat(m.data.longitude)])
-];
-if (allCoords.length > 0) {
-    map.fitBounds(allCoords, { padding: [40, 40] });
+        sidebarHtml += `<div class="sidebar-day-group mb-3">
+            <div style="font-size:0.78rem;font-weight:800;color:${color};background:rgba(0,0,0,0.03);padding:0.4rem 0.75rem;border-radius:8px;border-left:3.5px solid ${color};margin-bottom:0.5rem;" class="d-flex align-items-center justify-content-between">
+                <span>HARI KE-${dayNum}</span>
+                <span class="badge" style="background:${color};">${items.length} Destinasi</span>
+            </div>`;
+
+        items.forEach((item, idx) => {
+            if (!item.latitude || !item.longitude) return;
+            const seqNum = idx + 1;
+            const coord  = [parseFloat(item.latitude), parseFloat(item.longitude)];
+            dayCoords.push(coord);
+            allItinCoords.push(coord);
+
+            const lm = L.marker(coord, {
+                icon: makeNumberedMarkerIcon(seqNum, color)
+            }).bindPopup(buildDestPopup(item), { maxWidth: 240 }).addTo(map);
+
+            const markerIndex = itinMarkers.length;
+            itinMarkers.push({ leaflet: lm, data: item, dayNum: dayNum, seqNum: seqNum });
+
+            const price = item.ticket_price_weekday ? formatRupiah(item.ticket_price_weekday)
+                        : (item.ticket_price ? formatRupiah(item.ticket_price) : 'Gratis');
+            const img = item.primary_image
+                ? `<img class="mc-thumb" src="${BASE_URL}/${item.primary_image}" alt="${item.name}">`
+                : `<div class="mc-thumb-placeholder" style="background:linear-gradient(135deg,#dbeafe,#1a6bbf);"><i class="fas fa-mountain" style="color:rgba(255,255,255,0.7);"></i></div>`;
+
+            sidebarHtml += `<div class="marker-card" data-id="itin-${markerIndex}" onclick="focusItinMarker(${markerIndex})">
+                <div style="width:24px;height:24px;border-radius:50%;background:${color};color:#fff;font-weight:800;font-size:0.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    ${seqNum}
+                </div>
+                ${img}
+                <div class="mc-info">
+                    <div class="mc-category-badge">${item.category_name || 'Wisata'}</div>
+                    <div class="mc-name">${item.name}</div>
+                    <div class="mc-price">${price}</div>
+                </div>
+            </div>`;
+        });
+
+        sidebarHtml += `</div>`;
+
+        // Hubungkan destinasi hari ini dengan polyline
+        if (dayCoords.length > 1) {
+            L.polyline(dayCoords, {
+                color: color,
+                weight: 4.5,
+                opacity: 0.85,
+                dashArray: '6, 6'
+            }).addTo(map);
+        }
+    });
+
+    if (container) container.innerHTML = sidebarHtml;
+
+    if (allItinCoords.length > 0) {
+        map.fitBounds(allItinCoords, { padding: [50, 50] });
+    }
+} else {
+    // Mode Peta Normal (Semua Wisata + Hotel)
+    DESTINATIONS.forEach(d => {
+        if (!d.latitude || !d.longitude) return;
+        const lm = L.marker([parseFloat(d.latitude), parseFloat(d.longitude)], {
+            icon: makeDestIcon(d.category_icon)
+        }).bindPopup(buildDestPopup(d), { maxWidth: 240 });
+        destMarkers.push({ leaflet: lm, data: d });
+    });
+
+    HOTELS.forEach(h => {
+        if (!h.latitude || !h.longitude) return;
+        const lm = L.marker([parseFloat(h.latitude), parseFloat(h.longitude)], {
+            icon: makeHotelIcon(h.star_rating)
+        }).bindPopup(buildHotelPopup(h), { maxWidth: 240 });
+        hotelMarkers.push({ leaflet: lm, data: h });
+    });
+
+    destLayer  = L.layerGroup(destMarkers.map(m => m.leaflet)).addTo(map);
+    hotelLayer = L.layerGroup(hotelMarkers.map(m => m.leaflet)).addTo(map);
+
+    const allCoords = [
+        ...destMarkers.map(m => [parseFloat(m.data.latitude), parseFloat(m.data.longitude)]),
+        ...hotelMarkers.map(m => [parseFloat(m.data.latitude), parseFloat(m.data.longitude)])
+    ];
+    if (allCoords.length > 0) {
+        map.fitBounds(allCoords, { padding: [40, 40] });
+    }
+}
+
+function focusItinMarker(idx) {
+    document.querySelectorAll('.marker-card').forEach(c => c.classList.remove('highlighted'));
+    const m = itinMarkers[idx];
+    if (!m) return;
+    document.querySelector(`[data-id="itin-${idx}"]`)?.classList.add('highlighted');
+    map.flyTo([parseFloat(m.data.latitude), parseFloat(m.data.longitude)], 15, { animate: true, duration: 0.8 });
+    setTimeout(() => m.leaflet.openPopup(), 850);
 }
 
 // ════════════════════════════════════════════════════════════
@@ -762,6 +894,8 @@ let activeCatSlug = null;
 let searchQuery   = '';
 
 function applyFilters() {
+    if (ITINERARY_ROUTE) return; // Mode itinerary: abaikan filter standar
+
     const q = searchQuery.toLowerCase().trim();
 
     // Filter destinations
@@ -784,15 +918,21 @@ function applyFilters() {
     });
 
     // Update layers
-    destLayer.clearLayers();
-    visibleDest.forEach(m => destLayer.addLayer(m.leaflet));
+    if (destLayer) {
+        destLayer.clearLayers();
+        visibleDest.forEach(m => destLayer.addLayer(m.leaflet));
+    }
 
-    hotelLayer.clearLayers();
-    visibleHotel.forEach(m => hotelLayer.addLayer(m.leaflet));
+    if (hotelLayer) {
+        hotelLayer.clearLayers();
+        visibleHotel.forEach(m => hotelLayer.addLayer(m.leaflet));
+    }
 
     // Update stat badges
-    document.getElementById('destCountBadge').textContent  = visibleDest.length;
-    document.getElementById('hotelCountBadge').textContent = visibleHotel.length;
+    const destBadge  = document.getElementById('destCountBadge');
+    const hotelBadge = document.getElementById('hotelCountBadge');
+    if (destBadge)  destBadge.textContent  = visibleDest.length;
+    if (hotelBadge) hotelBadge.textContent = visibleHotel.length;
 
     // Rebuild sidebar
     buildSidebar(visibleDest, visibleHotel);

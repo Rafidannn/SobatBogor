@@ -81,7 +81,7 @@ class ItineraryController extends Controller {
         $stmt->execute($params);
         $allDestinations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Fallback jika pencarian terlalu ketat
+        // Fallback jika pencarian terlalu ketat (hapus semua filter — kategori & budget)
         if (count($allDestinations) < ($duration * 2)) {
             $stmt = $db->query("SELECT d.*, c.name AS category_name, c.icon AS category_icon,
                                        (SELECT image_path FROM destination_images WHERE destination_id = d.id AND is_primary = 1 LIMIT 1) AS primary_image,
@@ -92,14 +92,20 @@ class ItineraryController extends Controller {
             $allDestinations = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
+        // Fallback kedua: jika masih kurang (misal DB benar-benar kosong), kembalikan array kosong aman
+        if (empty($allDestinations)) {
+            return ['days' => [], 'duration' => $duration, 'budget_tier' => $budget,
+                    'total_ticket' => 0, 'total_hotel' => 0, 'total_meal' => 0, 'grand_total' => 0];
+        }
+
         // Pisahkan kategori kuliner dan non-kuliner jika ada
-        $culinaryDestinations = array_filter($allDestinations, function($d) {
+        $culinaryDestinations = array_values(array_filter($allDestinations, function($d) {
             return str_contains(strtolower($d['category_name'] ?? ''), 'kuliner') || str_contains(strtolower($d['name']), 'resto') || str_contains(strtolower($d['name']), 'soto') || str_contains(strtolower($d['name']), 'cafe');
-        });
+        }));
         
-        $sightseeingDestinations = array_filter($allDestinations, function($d) {
+        $sightseeingDestinations = array_values(array_filter($allDestinations, function($d) {
             return !str_contains(strtolower($d['category_name'] ?? ''), 'kuliner');
-        });
+        }));
 
         if (empty($sightseeingDestinations)) $sightseeingDestinations = $allDestinations;
 
@@ -184,11 +190,14 @@ class ItineraryController extends Controller {
     }
 
     private function pickUnused(array $items, array $usedIds): ?array {
+        // Nilai array agar bisa pakai array_rand
+        $items = array_values($items);
         foreach ($items as $item) {
             if (!in_array($item['id'], $usedIds)) {
                 return $item;
             }
         }
+        // Semua sudah terpakai, ambil acak agar slot tidak pernah kosong
         return !empty($items) ? $items[array_rand($items)] : null;
     }
 }

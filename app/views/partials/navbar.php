@@ -105,6 +105,11 @@ $userName    = $_SESSION['user_name'] ?? '';
                             <li><span class="dropdown-item-text text-muted" style="font-size:0.8rem;"><?= htmlspecialchars($userName) ?></span></li>
                             <li><hr class="dropdown-divider my-1"></li>
                             <li>
+                                <a class="dropdown-item" href="<?= BASE_URL ?>/itinerary/builder">
+                                    <i class="fas fa-tools me-2 text-success"></i>Itinerary Saya (Builder)
+                                </a>
+                            </li>
+                            <li>
                                 <a class="dropdown-item" href="<?= BASE_URL ?>/wishlist">
                                     <i class="fas fa-heart me-2 text-danger"></i>Wishlist Saya
                                 </a>

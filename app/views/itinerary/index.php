@@ -796,6 +796,23 @@
     .budget-card { background: #0a0f1e !important; -webkit-print-color-adjust: exact; }
 }
 
+/* ── Results section: CSS fade-in (tidak pakai GSAP agar tidak stuck) ── */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.budget-card {
+    animation: fadeInUp 0.55s ease both;
+    animation-delay: 0.05s;
+}
+.day-card {
+    animation: fadeInUp 0.55s ease both;
+}
+.day-card:nth-child(1) { animation-delay: 0.1s; }
+.day-card:nth-child(2) { animation-delay: 0.22s; }
+.day-card:nth-child(3) { animation-delay: 0.34s; }
+.action-bar { animation: fadeInUp 0.45s ease both; animation-delay: 0.02s; }
+
 /* ── GSAP ready (initial hidden states handled via JS) ── */
 .gsap-hidden { opacity: 0; }
 </style>
@@ -827,7 +844,9 @@
             <div class="hero-stats" id="hero-stats">
                 <span class="stat-chip"><i class="fas fa-map-marked-alt"></i> 20+ Destinasi Wisata</span>
                 <span class="stat-chip"><i class="fas fa-utensils"></i> 5 Kuliner Terbaik</span>
-                <span class="stat-chip"><i class="fas fa-hotel"></i> Pilihan Hotel Lengkap</span>
+                <a href="<?= BASE_URL ?>/itinerary/builder" class="stat-chip text-white" style="background:linear-gradient(135deg,#1a6bbf,#3a9e3a);border:none;text-decoration:none;font-weight:700;">
+                    <i class="fas fa-tools text-white"></i> Buat Itinerary Manual (Drag &amp; Drop)
+                </a>
             </div>
         </div>
     </div>
@@ -836,6 +855,28 @@
 <!-- ══ MAIN LAYOUT ═══════════════════════════════════════ -->
 <div class="itin-layout">
     <div class="container">
+
+        <!-- Banner Promosi Manual Builder -->
+        <div class="mb-4 p-3.5" style="background:linear-gradient(135deg, #0d1529 0%, #1a2a4a 100%);border-radius:18px;border:1px solid rgba(96,165,250,0.3);box-shadow:0 4px 20px rgba(0,0,0,0.08);" data-aos="fade-up">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg, #1a6bbf, #3a9e3a);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem;flex-shrink:0;">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div>
+                        <h5 style="color:#fff;font-weight:800;font-size:1.05rem;margin:0 0 0.2rem;">
+                            Ingin Susun Rencana Perjalanan Sendiri?
+                        </h5>
+                        <p style="color:rgba(255,255,255,0.65);font-size:0.85rem;margin:0;">
+                            Coba fitur <strong>Itinerary Builder Manual</strong> dengan sistem Drag &amp; Drop interaktif dan visualisasi rute di peta!
+                        </p>
+                    </div>
+                </div>
+                <a href="<?= BASE_URL ?>/itinerary/builder" class="btn text-white font-weight-bold px-4 py-2" style="background:linear-gradient(135deg, #1a6bbf, #3a9e3a);border-radius:12px;font-weight:700;font-size:0.9rem;white-space:nowrap;">
+                    <i class="fas fa-magic me-1.5"></i> Buka Itinerary Builder
+                </a>
+            </div>
+        </div>
         <div class="row g-4 align-items-start">
 
             <!-- ═══ LEFT: FORM PANEL ════════════════════ -->
@@ -1115,10 +1156,7 @@
                                 </div>
                             </div>
                             <span class="day-pill">
-                                <?php
-                                $icons = ['🌤️','🌥️','⭐'];
-                                echo ($icons[$di] ?? '📅') . ' Hari ' . $day['day_number'];
-                                ?>
+                                <i class="fas fa-calendar-check me-1"></i> Hari <?= $day['day_number'] ?>
                             </span>
                         </div>
 
@@ -1133,7 +1171,7 @@
                                     08:00–11:30
                                 </span>
                                 <div class="slot-body sb-pagi">
-                                    <div class="slot-label">🌅 Wisata Pagi</div>
+                                    <div class="slot-label"><i class="fas fa-sun me-1.5" style="color:#f59e0b;"></i> WISATA PAGI</div>
                                     <a href="<?= BASE_URL ?>/destinations/<?= $day['pagi']['slug'] ?>"
                                        class="slot-name" target="_blank">
                                         <?= htmlspecialchars($day['pagi']['name']) ?>
@@ -1168,7 +1206,7 @@
                                     12:00–13:30
                                 </span>
                                 <div class="slot-body sb-siang">
-                                    <div class="slot-label">🍽️ Istirahat &amp; Makan Siang</div>
+                                    <div class="slot-label"><i class="fas fa-utensils me-1.5" style="color:#ef4444;"></i> ISTIRAHAT &amp; MAKAN SIANG</div>
                                     <?php if ($day['kuliner']): ?>
                                     <a href="<?= BASE_URL ?>/destinations/<?= $day['kuliner']['slug'] ?>"
                                        class="slot-name" target="_blank">
@@ -1199,7 +1237,7 @@
                                     14:00–17:30
                                 </span>
                                 <div class="slot-body sb-sore">
-                                    <div class="slot-label">☀️ Wisata Sore</div>
+                                    <div class="slot-label"><i class="fas fa-cloud-sun me-1.5" style="color:#1a6bbf;"></i> WISATA SORE</div>
                                     <a href="<?= BASE_URL ?>/destinations/<?= $day['sore']['slug'] ?>"
                                        class="slot-name" target="_blank">
                                         <?= htmlspecialchars($day['sore']['name']) ?>
@@ -1235,7 +1273,7 @@
                                     Malam
                                 </span>
                                 <div class="slot-body sb-malam">
-                                    <div class="slot-label">🌙 Penginapan / Hotel</div>
+                                    <div class="slot-label"><i class="fas fa-moon me-1.5" style="color:#3a9e3a;"></i> PENGINAPAN / HOTEL</div>
                                     <a href="<?= BASE_URL ?>/hotels/<?= $day['hotel']['id'] ?>"
                                        class="slot-name" target="_blank">
                                         <?= htmlspecialchars($day['hotel']['name']) ?>
@@ -1302,28 +1340,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        // Day cards scroll reveal
-        document.querySelectorAll('.day-card').forEach(function(card, i) {
-            gsap.from(card, {
-                y: 40, opacity: 0, duration: 0.55,
-                ease: 'power3.out',
-                delay: i * 0.08,
-                scrollTrigger: {
-                    trigger: card,
-                    start: 'top 88%',
-                    once: true
-                }
-            });
-        });
-
-        // Budget card reveal
-        const budgetCard = document.querySelector('.budget-card');
-        if (budgetCard) {
-            gsap.from(budgetCard, {
-                y: 35, opacity: 0, duration: 0.65, ease: 'power3.out',
-                scrollTrigger: { trigger: budgetCard, start: 'top 85%', once: true }
-            });
-        }
+        /* GSAP hanya untuk hero — hasil itinerary pakai CSS animation */
     }
 
     /* ── CountUp for budget total ─────────────────────── */
