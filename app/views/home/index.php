@@ -86,11 +86,11 @@ function renderStars(float $rating): string {
                         <i class="fas fa-map-marked-alt" style="color:#fb923c;"></i>
                         Jelajahi Peta Wisata
                     </a>
-                    <a href="<?= BASE_URL ?>/itinerary" class="btn d-inline-flex align-items-center gap-2 rounded-pill px-4 py-2"
-                       style="background:linear-gradient(135deg, #ea580c, #f97316);color:#fff;font-family:'Outfit',sans-serif;font-weight:600;font-size:0.88rem;box-shadow:0 4px 15px rgba(234,88,12,0.35);transition:all 0.2s;">
+                     <a href="<?= BASE_URL ?>/itinerary" class="btn d-inline-flex align-items-center gap-2 rounded-pill px-4 py-2"
+                        style="background:linear-gradient(135deg, #1a6bbf, #3a9e3a);color:#fff;font-family:'Outfit',sans-serif;font-weight:600;font-size:0.88rem;box-shadow:0 4px 15px rgba(26,107,191,0.35);transition:all 0.2s;">
                         <i class="fas fa-compass"></i>
                         Buat Itinerary Otomatis
-                    </a>
+                     </a>
                 </div>
 
             </div>
@@ -190,10 +190,13 @@ function renderStars(float $rating): string {
                             <?= htmlspecialchars($dest['address'] ?? 'Bogor, Jawa Barat') ?>
                         </p>
                         <div class="card-footer-info">
-                            <?php $pricing = getDestinationPricing($dest); ?>
+                            <?php 
+                                $pricing = getDestinationPricing($dest); 
+                                $isCulinary = (($dest['category_id'] ?? 0) == 3 || strtolower($dest['category_name'] ?? '') === 'kuliner');
+                            ?>
                             <div>
                                 <div class="ticket-price">
-                                    <?= $pricing['formatted_today'] ?> <span style="font-size:0.72rem;color:var(--gray-500);font-weight:normal;">/ orang</span>
+                                    <?= $pricing['formatted_today'] ?> <span style="font-size:0.72rem;color:var(--gray-500);font-weight:normal;"><?= $isCulinary ? '/ porsi' : '/ orang' ?></span>
                                 </div>
                                 <div style="font-size:0.72rem;color:var(--gray-500);">
                                     <span title="Harga Hari Kerja (Senin-Jumat)">WD: <?= $pricing['formatted_weekday'] ?></span> | 

@@ -57,6 +57,7 @@ class DestinationAdminController extends Controller {
         $ticketPrice = $ticketPriceWeekday;
         $openHours   = trim($_POST['open_hours'] ?? '');
         $isFeatured  = isset($_POST['is_featured']) ? 1 : 0;
+        $videoUrl    = trim($_POST['video_url'] ?? '');
 
         if (empty($name) || empty($categoryId)) {
             $_SESSION['error'] = 'Nama destinasi dan kategori wajib diisi.';
@@ -83,7 +84,8 @@ class DestinationAdminController extends Controller {
             'ticket_price_weekday' => $ticketPriceWeekday,
             'ticket_price_weekend' => $ticketPriceWeekend,
             'open_hours'           => $openHours,
-            'is_featured'          => $isFeatured
+            'is_featured'          => $isFeatured,
+            'video_url'            => $videoUrl
         ]);
 
         if ($success) {
@@ -142,6 +144,7 @@ class DestinationAdminController extends Controller {
         $ticketPrice = $ticketPriceWeekday;
         $openHours   = trim($_POST['open_hours'] ?? '');
         $isFeatured  = isset($_POST['is_featured']) ? 1 : 0;
+        $videoUrl    = trim($_POST['video_url'] ?? '');
 
         if (empty($name) || empty($categoryId)) {
             $_SESSION['error'] = 'Nama destinasi dan kategori wajib diisi.';
@@ -169,7 +172,8 @@ class DestinationAdminController extends Controller {
             'ticket_price_weekday' => $ticketPriceWeekday,
             'ticket_price_weekend' => $ticketPriceWeekend,
             'open_hours'           => $openHours,
-            'is_featured'          => $isFeatured
+            'is_featured'          => $isFeatured,
+            'video_url'            => $videoUrl
         ]);
 
         // Tangani penetapan gambar utama baru jika diubah

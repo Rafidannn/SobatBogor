@@ -90,17 +90,17 @@
         <div class="card-body p-3 p-md-4">
             <form action="<?= BASE_URL ?>/hotels" method="GET" class="row g-3 align-items-end">
                 <!-- Search Keyword -->
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label fw-600 small text-muted">Cari Nama Hotel / Lokasi</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
                         <input type="text" name="q" class="form-control border-start-0 bg-light"
-                               placeholder="Nama hotel atau tempat..." value="<?= htmlspecialchars($search) ?>" style="font-size:0.9rem;">
+                               placeholder="Nama hotel..." value="<?= htmlspecialchars($search) ?>" style="font-size:0.9rem;">
                     </div>
                 </div>
 
                 <!-- Star Rating -->
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="form-label fw-600 small text-muted">Rating Bintang</label>
                     <select name="star" class="form-select bg-light" style="font-size:0.9rem;">
                         <option value="0">Semua Bintang</option>
@@ -111,14 +111,14 @@
                 </div>
 
                 <!-- Max Price -->
-                <div class="col-md-3">
-                    <label class="form-label fw-600 small text-muted">Maksimal Harga/Malam</label>
+                <div class="col-md-2">
+                    <label class="form-label fw-600 small text-muted">Maksimal Harga</label>
                     <select name="max_price" class="form-select bg-light" style="font-size:0.9rem;">
                         <option value="0">Semua Harga</option>
-                        <option value="500000" <?= $maxPrice == 500000 ? 'selected' : '' ?>>S.d. Rp 500.000</option>
-                        <option value="800000" <?= $maxPrice == 800000 ? 'selected' : '' ?>>S.d. Rp 800.000</option>
-                        <option value="1200000" <?= $maxPrice == 1200000 ? 'selected' : '' ?>>S.d. Rp 1.200.000</option>
-                        <option value="2000000" <?= $maxPrice == 2000000 ? 'selected' : '' ?>>S.d. Rp 2.000.000</option>
+                        <option value="500000" <?= $maxPrice == 500000 ? 'selected' : '' ?>>S.d. Rp 500rb</option>
+                        <option value="800000" <?= $maxPrice == 800000 ? 'selected' : '' ?>>S.d. Rp 800rb</option>
+                        <option value="1200000" <?= $maxPrice == 1200000 ? 'selected' : '' ?>>S.d. Rp 1.2jt</option>
+                        <option value="2000000" <?= $maxPrice == 2000000 ? 'selected' : '' ?>>S.d. Rp 2jt</option>
                     </select>
                 </div>
 
@@ -126,6 +126,13 @@
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-primary w-100 rounded-3 py-2 fw-600" style="font-size:0.9rem;">
                         <i class="fas fa-filter me-1"></i> Filter
+                    </button>
+                </div>
+
+                <!-- Geolocation Button -->
+                <div class="col-md-3">
+                    <button type="button" id="btnGeoSort" class="btn btn-outline-primary w-100 rounded-3 py-2 fw-600" style="font-size:0.9rem; display:flex; align-items:center; justify-content:center; gap:0.4rem;">
+                        <i class="fas fa-location-crosshairs"></i> Cari Hotel Terdekat
                     </button>
                 </div>
             </form>
@@ -146,7 +153,10 @@
         <?php else: ?>
         <div class="row g-4">
             <?php foreach ($hotels as $h): ?>
-            <div class="col-sm-6 col-lg-4 col-xl-3" data-aos="fade-up">
+            <div class="col-sm-6 col-lg-4 col-xl-3 hotel-grid-item" 
+                 data-lat="<?= (float)$h['latitude'] ?>" 
+                 data-lng="<?= (float)$h['longitude'] ?>"
+                 data-aos="fade-up">
                 <div class="hotel-card">
                     <!-- Image -->
                     <div class="hotel-img-wrapper">
@@ -162,13 +172,6 @@
                         <div style="position:absolute;top:10px;left:10px;background:rgba(15,23,42,0.85);backdrop-filter:blur(4px);padding:3px 10px;border-radius:20px;color:#f59e0b;font-size:0.75rem;font-weight:700;">
                             <?php for ($s = 1; $s <= $h['star_rating']; $s++): ?>★<?php endfor; ?>
                         </div>
-
-                        <!-- Jarak Badge -->
-                        <?php if (!empty($h['distance_text'])): ?>
-                        <div style="position:absolute;bottom:10px;right:10px;background:rgba(255,255,255,0.9);backdrop-filter:blur(4px);padding:3px 9px;border-radius:20px;color:var(--dark);font-size:0.7rem;font-weight:600;">
-                            <i class="fas fa-map-marker-alt text-primary me-1"></i><?= htmlspecialchars($h['distance_text']) ?>
-                        </div>
-                        <?php endif; ?>
                     </div>
 
                     <!-- Content -->
@@ -181,9 +184,13 @@
                                 <?= htmlspecialchars($h['name']) ?>
                             </a>
                         </h3>
-                        <p class="text-muted small mb-2 text-truncate" style="font-size:0.75rem;">
+                        <p class="text-muted small mb-1 text-truncate" style="font-size:0.75rem;">
                             <?= htmlspecialchars($h['address'] ?? 'Bogor, Jawa Barat') ?>
                         </p>
+                        <!-- Distance Badge -->
+                        <div class="geo-distance-badge mb-2 d-none" style="font-size: 0.72rem; font-weight: 600; color: var(--secondary);">
+                            <i class="fas fa-location-arrow me-1"></i> <span class="distance-value">0</span> km dari Anda
+                        </div>
 
                         <div class="mt-auto pt-2 border-top d-flex align-items-center justify-content-between">
                             <div>
@@ -290,5 +297,121 @@ function initHotelMap() {
     if (hotelBounds.length > 0) {
         map.fitBounds(hotelBounds, { padding: [40, 40] });
     }
+}
+
+// ── GEOLOCATION SORTING LOGIC FOR HOTELS ──
+const btnGeoSort = document.getElementById('btnGeoSort');
+if (btnGeoSort) {
+    btnGeoSort.addEventListener('click', function() {
+        if (!navigator.geolocation) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Tidak Didukung',
+                text: 'Browser Anda tidak mendukung fitur Geolocation GPS.',
+                confirmButtonColor: '#1a6bbf'
+            });
+            return;
+        }
+
+        const originalText = btnGeoSort.innerHTML;
+        btnGeoSort.disabled = true;
+        btnGeoSort.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Mendeteksi Lokasi...';
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const userLat = position.coords.latitude;
+                const userLng = position.coords.longitude;
+
+                // Hitung jarak untuk setiap hotel
+                const items = document.querySelectorAll('.hotel-grid-item');
+                const itemsArray = Array.from(items);
+
+                itemsArray.forEach(item => {
+                    const lat = parseFloat(item.getAttribute('data-lat'));
+                    const lng = parseFloat(item.getAttribute('data-lng'));
+
+                    if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+                        const dist = getHaversineDistance(userLat, userLng, lat, lng);
+                        item.setAttribute('data-distance', dist);
+                        
+                        // Tampilkan badge dan set teks jarak
+                        const badge = item.querySelector('.geo-distance-badge');
+                        if (badge) {
+                            badge.classList.remove('d-none');
+                            badge.querySelector('.distance-value').textContent = dist.toFixed(1);
+                        }
+                    } else {
+                        // Jika tidak ada koordinat, berikan jarak yang sangat besar agar berada di paling bawah
+                        item.setAttribute('data-distance', 999999);
+                        const badge = item.querySelector('.geo-distance-badge');
+                        if (badge) badge.classList.add('d-none');
+                    }
+                });
+
+                // Urutkan item berdasarkan jarak terkecil (ASC)
+                itemsArray.sort((a, b) => {
+                    const distA = parseFloat(a.getAttribute('data-distance') || 999999);
+                    const distB = parseFloat(b.getAttribute('data-distance') || 999999);
+                    return distA - distB;
+                });
+
+                // Masukkan kembali item yang telah diurutkan ke grid container
+                const gridContainer = document.querySelector('#gridView > .row');
+                if (gridContainer) {
+                    itemsArray.forEach(item => {
+                        gridContainer.appendChild(item);
+                    });
+                }
+
+                // Ubah gaya tombol menjadi aktif
+                btnGeoSort.disabled = false;
+                btnGeoSort.innerHTML = '<i class="fas fa-check-circle me-2"></i> Hotel Terdekat Aktif';
+                btnGeoSort.className = 'btn btn-success w-100 rounded-3 py-2 fw-600';
+
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Berhasil mengurutkan hotel terdekat!',
+                    showConfirmButton: false,
+                    timer: 2500,
+                    timerProgressBar: true
+                });
+            },
+            (error) => {
+                btnGeoSort.disabled = false;
+                btnGeoSort.innerHTML = originalText;
+                
+                let errorMsg = 'Gagal mengakses GPS lokal Anda.';
+                if (error.code === error.PERMISSION_DENIED) {
+                    errorMsg = 'Akses lokasi ditolak. Silakan berikan izin GPS di browser Anda.';
+                }
+                
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Akses Lokasi Gagal',
+                    text: errorMsg,
+                    confirmButtonColor: '#1a6bbf'
+                });
+            },
+            { enableHighAccuracy: true, timeout: 8000 }
+        );
+    });
+}
+
+function getHaversineDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Radius bumi dalam km
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+    const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c; // Jarak dalam km
+}
+
+function deg2rad(deg) {
+    return deg * (Math.PI/180);
 }
 </script>

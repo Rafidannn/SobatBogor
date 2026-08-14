@@ -39,7 +39,12 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0" style="font-size:0.85rem;">
                 <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/" style="color:var(--primary);">Beranda</a></li>
-                <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/destinations" style="color:var(--primary);">Wisata</a></li>
+                <?php $isCulinary = (($destination['category_id'] ?? 0) == 3 || strtolower($destination['category_name'] ?? '') === 'kuliner'); ?>
+                <?php if ($isCulinary): ?>
+                    <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/kuliner" style="color:var(--primary);">Kuliner</a></li>
+                <?php else: ?>
+                    <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/destinations" style="color:var(--primary);">Wisata</a></li>
+                <?php endif; ?>
                 <li class="breadcrumb-item active text-truncate" style="max-width:200px;">
                     <?= htmlspecialchars($destination['name']) ?>
                 </li>
@@ -146,6 +151,25 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
                     <?= nl2br(htmlspecialchars($destination['description'] ?? 'Deskripsi belum tersedia.')) ?>
                 </div>
             </div>
+
+            <?php 
+            $ytVideoId = getYouTubeVideoId($destination['video_url'] ?? null);
+            if ($ytVideoId): 
+            ?>
+            <!-- Virtual Tour Video (YouTube) -->
+            <div class="info-card mb-4" data-aos="fade-up" data-aos-delay="50">
+                <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;">
+                    <i class="fab fa-youtube me-2" style="color:#ff0000;font-size:1.25rem;"></i>Virtual Tour &amp; Dokumenter
+                </h3>
+                <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;border:1px solid var(--gray-200);box-shadow:var(--shadow-sm);">
+                    <iframe src="https://www.youtube.com/embed/<?= $ytVideoId ?>" 
+                            style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <!-- Reviews Section -->
             <div data-aos="fade-up">
@@ -315,8 +339,12 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
         <!-- ── RIGHT: Info Card + Related ─────────────────── -->
         <div class="col-lg-4">
 
-            <!-- Harga Tiket Weekday & Weekend -->
-            <?php $pricing = getDestinationPricing($destination); ?>
+            <!-- Harga Tiket Weekday & Weekend (Sembunyikan jika Kuliner) -->
+            <?php 
+                $pricing = getDestinationPricing($destination); 
+                $isCulinary = (($destination['category_id'] ?? 0) == 3 || strtolower($destination['category_name'] ?? '') === 'kuliner');
+            ?>
+            <?php if (!$isCulinary): ?>
             <div class="info-card mb-3" data-aos="fade-left">
                 <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.85rem;">
                     <i class="fas fa-ticket-alt me-2" style="color:var(--primary);"></i>Harga Tiket Masuk
@@ -339,16 +367,17 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
 
             <?php if (!empty($ticketLink)): ?>
             <div class="mb-3" data-aos="fade-left" data-aos-delay="30">
                 <a href="<?= htmlspecialchars($ticketLink['url']) ?>"
                    target="_blank"
                    rel="noopener noreferrer"
-                   style="display:flex;align-items:center;justify-content:center;gap:0.6rem;width:100%;padding:0.85rem 1rem;background:linear-gradient(135deg,var(--primary),#c2410c);color:#fff;border-radius:14px;font-weight:700;font-size:1rem;text-decoration:none;box-shadow:0 4px 15px rgba(234,88,12,0.35);transition:all 0.25s ease;"
-                   onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(234,88,12,0.45)';"
-                   onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 15px rgba(234,88,12,0.35)';">
-                    <i class="fas fa-ticket-alt" style="font-size:1.1rem;"></i>
+                   style="display:flex;align-items:center;justify-content:center;gap:0.6rem;width:100%;padding:0.85rem 1rem;background:linear-gradient(135deg,#1a6bbf,#3a9e3a);color:#fff;border-radius:14px;font-weight:700;font-size:1rem;text-decoration:none;box-shadow:0 4px 15px rgba(26,107,191,0.35);transition:all 0.25s ease;"
+                   onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(26,107,191,0.45)';"
+                   onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 15px rgba(26,107,191,0.35)';">
+                    <i class="fas <?= $isCulinary ? 'fa-utensils' : 'fa-ticket-alt' ?>" style="font-size:1.1rem;"></i>
                     <?= htmlspecialchars($ticketLink['label']) ?>
                     <i class="fas fa-external-link-alt" style="font-size:0.75rem;opacity:0.8;"></i>
                 </a>
@@ -379,7 +408,7 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
             <!-- Info Detail -->
             <?php $statusInfo = getDestinationStatus($destination['open_hours'] ?? ''); ?>
             <div class="info-card" data-aos="fade-left" data-aos-delay="100">
-                <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">Informasi Wisata</h3>
+                <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;"><?= $isCulinary ? 'Informasi Kuliner' : 'Informasi Wisata' ?></h3>
 
                 <!-- Status Buka/Tutup Prominent -->
                 <div style="background:<?= $statusInfo['status'] === 'buka' ? '#f0fdf4' : '#fff5f5' ?>;border:1.5px solid <?= $statusInfo['status'] === 'buka' ? '#3a9e3a' : '#ef4444' ?>;border-radius:10px;padding:0.7rem 0.85rem;margin-bottom:0.75rem;">
@@ -526,10 +555,6 @@ function renderStarsDetail(float $rating, string $size = '0.9rem'): string {
                                 <i class="fas fa-star" style="font-size:0.62rem;color:<?= $s <= $hotel['star_rating'] ? '#f59e0b' : '#e2e8f0' ?>;"></i>
                                 <?php endfor; ?>
                             </div>
-                            <div style="font-size:0.72rem;color:var(--gray-500);margin-bottom:4px;">
-                                <i class="fas fa-map-marker-alt me-1" style="color:var(--primary);"></i>
-                                <?= htmlspecialchars($hotel['distance_text'] ?? '') ?>
-                            </div>
                             <div style="font-size:0.78rem;font-weight:700;color:var(--primary);margin-bottom:6px;">
                                 Mulai Rp <?= number_format($hotel['price_start'], 0, ',', '.') ?>/malam
                             </div>
@@ -615,7 +640,7 @@ function toggleWishlistDetail(destinationId, btn) {
     <?php if (!isset($_SESSION['user_id'])): ?>
     Swal.fire({
         title: 'Perlu Login', text: 'Silakan masuk untuk menyimpan wishlist.',
-        icon: 'info', confirmButtonText: 'Masuk', confirmButtonColor: '#ea580c',
+        icon: 'info', confirmButtonText: 'Masuk', confirmButtonColor: '#1a6bbf',
         showCancelButton: true, cancelButtonText: 'Batal'
     }).then(r => { if (r.isConfirmed) window.location.href = '<?= BASE_URL ?>/login'; });
     return;

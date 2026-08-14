@@ -95,8 +95,8 @@ class Hotel
     {
         $stmt = $this->db->prepare(
             "INSERT INTO nearby_hotels
-             (destination_id, name, star_rating, price_start, distance_text, latitude, longitude, address, description, facilities, image_path, traveloka_url, booking_url, is_active)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+             (destination_id, name, star_rating, price_start, distance_text, latitude, longitude, address, description, facilities, image_path, traveloka_url, booking_url, video_url, is_active)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         );
         return $stmt->execute([
             $data['destination_id'],
@@ -112,6 +112,7 @@ class Hotel
             $data['image_path']    ?? null,
             $data['traveloka_url'] ?? null,
             $data['booking_url']   ?? null,
+            $data['video_url']     ?? null,
             $data['is_active']     ?? 1,
         ]);
     }
@@ -123,7 +124,7 @@ class Hotel
             "UPDATE nearby_hotels SET
              destination_id = ?, name = ?, star_rating = ?, price_start = ?,
              distance_text = ?, latitude = ?, longitude = ?, address = ?, description = ?, facilities = ?,
-             image_path = ?, traveloka_url = ?, booking_url = ?, is_active = ?
+             image_path = ?, traveloka_url = ?, booking_url = ?, video_url = ?, is_active = ?
              WHERE id = ?"
         );
         return $stmt->execute([
@@ -140,6 +141,7 @@ class Hotel
             $data['image_path']    ?? null,
             $data['traveloka_url'] ?? null,
             $data['booking_url']   ?? null,
+            $data['video_url']     ?? null,
             $data['is_active']     ?? 1,
             $id,
         ]);

@@ -79,20 +79,21 @@ function renderStars(float $rating): string {
 </style>
 
 <!-- Page Header -->
+<?php $isKulinerPage = isset($isKulinerPage) && $isKulinerPage; ?>
 <div style="background:linear-gradient(135deg,#0f172a,#1e293b);padding:3.5rem 0 2.5rem;">
     <div class="container">
         <nav aria-label="breadcrumb" class="mb-2">
             <ol class="breadcrumb mb-0" style="font-size:0.85rem;">
                 <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/" style="color:rgba(255,255,255,0.6);">Beranda</a></li>
-                <li class="breadcrumb-item active" style="color:rgba(255,255,255,0.9);">Katalog Wisata</li>
+                <li class="breadcrumb-item active" style="color:rgba(255,255,255,0.9);"><?= $isKulinerPage ? 'Kuliner' : 'Katalog Wisata' ?></li>
             </ol>
         </nav>
         <h1 style="color:#fff;font-weight:800;font-size:2rem;margin-bottom:0.5rem;">
-            <i class="fas fa-map-marked-alt me-2" style="color:var(--primary);"></i>
-            Katalog Wisata Bogor
+            <i class="fas <?= $isKulinerPage ? 'fa-utensils' : 'fa-map-marked-alt' ?> me-2" style="color:var(--primary);"></i>
+            <?= $isKulinerPage ? 'Wisata Kuliner Bogor' : 'Katalog Wisata Bogor' ?>
         </h1>
         <p style="color:rgba(255,255,255,0.65);font-size:0.95rem;">
-            <?= count($destinations) ?> destinasi ditemukan
+            <?= count($destinations) ?> <?= $isKulinerPage ? 'tempat makan khas ditemukan' : 'destinasi ditemukan' ?>
             <?= $search ? ' untuk "<strong style="color:#fb923c;">' . htmlspecialchars($search) . '</strong>"' : '' ?>
             <?= $catSlug ? ' pada kategori <strong style="color:#fb923c;">' . htmlspecialchars($catSlug) . '</strong>' : '' ?>
         </p>
@@ -162,6 +163,13 @@ function renderStars(float $rating): string {
                     </select>
                 </form>
 
+                <!-- Jarak Terdekat -->
+                <div class="filter-title"><i class="fas fa-location-arrow me-2 text-primary-custom"></i>Jarak Terdekat</div>
+                <button type="button" id="btnGeoSort" class="btn btn-outline-primary btn-sm w-100 mb-3"
+                        style="border-radius:8px;font-family:'Outfit',sans-serif;font-weight:600;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:all 0.3s ease;">
+                    <i class="fas fa-location-crosshairs"></i> Cari Wisata Terdekat
+                </button>
+
                 <!-- Reset -->
                 <a href="<?= BASE_URL ?>/destinations" class="btn btn-sm w-100"
                    style="border:1.5px solid var(--gray-200);border-radius:8px;font-size:0.85rem;color:var(--gray-700);font-family:'Outfit',sans-serif;">
@@ -208,7 +216,10 @@ function renderStars(float $rating): string {
             <!-- Grid Container -->
             <div id="catalogGrid" class="row g-4">
                 <?php foreach ($destinations as $idx => $dest): ?>
-                <div class="col-md-6 col-xl-4" data-aos="fade-up" data-aos-delay="<?= ($idx % 3) * 80 ?>">
+                <div class="col-md-6 col-xl-4 destination-grid-item" 
+                     data-lat="<?= (float)$dest['latitude'] ?>" 
+                     data-lng="<?= (float)$dest['longitude'] ?>"
+                     data-aos="fade-up" data-aos-delay="<?= ($idx % 3) * 80 ?>">
                     <div class="destination-card h-100">
                         <div class="card-img-wrapper">
                             <?php if ($dest['primary_image']): ?>
@@ -234,10 +245,14 @@ function renderStars(float $rating): string {
                                     <?= htmlspecialchars($dest['name']) ?>
                                 </a>
                             </h3>
-                            <p class="card-address">
+                            <p class="card-address mb-1">
                                 <i class="fas fa-map-marker-alt me-1" style="color:var(--primary);"></i>
                                 <?= htmlspecialchars($dest['address'] ?? 'Bogor') ?>
                             </p>
+                            <!-- Distance Badge -->
+                            <div class="geo-distance-badge mb-2 d-none" style="font-size:0.8rem; font-weight:600; color:var(--secondary);">
+                                <i class="fas fa-location-arrow me-1" style="color:var(--secondary);"></i> <span class="distance-value">0</span> km dari Anda
+                            </div>
                             <?php $status = getDestinationStatus($dest['open_hours'] ?? ''); ?>
                             <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
                                 <span class="badge" style="<?= $status['style'] ?>; font-size:0.7rem; padding:0.22rem 0.5rem; border-radius:30px; font-weight:600;" title="<?= htmlspecialchars($status['detail']) ?>">
@@ -250,9 +265,12 @@ function renderStars(float $rating): string {
                                 <?php endif; ?>
                             </div>
                             <div class="card-footer-info mt-auto">
-                                <?php $pricing = getDestinationPricing($dest); ?>
+                                <?php 
+                                    $pricing = getDestinationPricing($dest); 
+                                    $isCulinary = (($dest['category_id'] ?? 0) == 3 || strtolower($dest['category_name'] ?? '') === 'kuliner');
+                                ?>
                                 <div>
-                                    <div class="ticket-price"><?= $pricing['formatted_today'] ?> <span style="font-size:0.7rem;font-weight:normal;color:var(--gray-500);">/ orang</span></div>
+                                    <div class="ticket-price"><?= $pricing['formatted_today'] ?> <span style="font-size:0.7rem;font-weight:normal;color:var(--gray-500);"><?= $isCulinary ? '/ porsi' : '/ orang' ?></span></div>
                                     <div style="font-size:0.7rem;color:var(--gray-500);">
                                         <span>WD: <?= $pricing['formatted_weekday'] ?></span> | 
                                         <span>WE: <?= $pricing['formatted_weekend'] ?></span>
@@ -287,7 +305,7 @@ function toggleWishlist(destinationId, btn) {
     <?php if (!isset($_SESSION['user_id'])): ?>
     Swal.fire({
         title: 'Perlu Login', text: 'Silakan masuk untuk menyimpan wishlist.',
-        icon: 'info', confirmButtonText: 'Masuk', confirmButtonColor: '#ea580c',
+        icon: 'info', confirmButtonText: 'Masuk', confirmButtonColor: '#1a6bbf',
         showCancelButton: true, cancelButtonText: 'Batal'
     }).then(r => { if (r.isConfirmed) window.location.href = '<?= BASE_URL ?>/login'; });
     return;
@@ -410,6 +428,122 @@ function initializeCatalogMap() {
     if (markerBounds.length > 0) {
         map.fitBounds(markerBounds, { padding: [40, 40] });
     }
+}
+
+// ── GEOLOCATION SORTING LOGIC ──
+const btnGeoSort = document.getElementById('btnGeoSort');
+if (btnGeoSort) {
+    btnGeoSort.addEventListener('click', function() {
+        if (!navigator.geolocation) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Tidak Didukung',
+                text: 'Browser Anda tidak mendukung fitur Geolocation GPS.',
+                confirmButtonColor: '#1a6bbf'
+            });
+            return;
+        }
+
+        const originalText = btnGeoSort.innerHTML;
+        btnGeoSort.disabled = true;
+        btnGeoSort.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Mendeteksi Lokasi...';
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const userLat = position.coords.latitude;
+                const userLng = position.coords.longitude;
+
+                // Hitung jarak untuk setiap destinasi
+                const items = document.querySelectorAll('.destination-grid-item');
+                const itemsArray = Array.from(items);
+
+                itemsArray.forEach(item => {
+                    const lat = parseFloat(item.getAttribute('data-lat'));
+                    const lng = parseFloat(item.getAttribute('data-lng'));
+
+                    if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+                        const dist = getHaversineDistance(userLat, userLng, lat, lng);
+                        item.setAttribute('data-distance', dist);
+                        
+                        // Tampilkan badge dan set teks jarak
+                        const badge = item.querySelector('.geo-distance-badge');
+                        if (badge) {
+                            badge.classList.remove('d-none');
+                            badge.querySelector('.distance-value').textContent = dist.toFixed(1);
+                        }
+                    } else {
+                        // Jika tidak ada koordinat, berikan jarak yang sangat besar agar berada di paling bawah
+                        item.setAttribute('data-distance', 999999);
+                        const badge = item.querySelector('.geo-distance-badge');
+                        if (badge) badge.classList.add('d-none');
+                    }
+                });
+
+                // Urutkan item berdasarkan jarak terkecil (ASC)
+                itemsArray.sort((a, b) => {
+                    const distA = parseFloat(a.getAttribute('data-distance') || 999999);
+                    const distB = parseFloat(b.getAttribute('data-distance') || 999999);
+                    return distA - distB;
+                });
+
+                // Masukkan kembali item yang telah diurutkan ke kontainer grid
+                const gridContainer = document.getElementById('catalogGrid');
+                if (gridContainer) {
+                    itemsArray.forEach(item => {
+                        gridContainer.appendChild(item);
+                    });
+                }
+
+                // Ubah gaya tombol menjadi aktif
+                btnGeoSort.disabled = false;
+                btnGeoSort.innerHTML = '<i class="fas fa-check-circle me-2"></i> Wisata Terdekat Aktif';
+                btnGeoSort.className = 'btn btn-success btn-sm w-100 mb-3';
+
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Berhasil mengurutkan wisata terdekat!',
+                    showConfirmButton: false,
+                    timer: 2500,
+                    timerProgressBar: true
+                });
+            },
+            (error) => {
+                btnGeoSort.disabled = false;
+                btnGeoSort.innerHTML = originalText;
+                
+                let errorMsg = 'Gagal mengakses GPS lokal Anda.';
+                if (error.code === error.PERMISSION_DENIED) {
+                    errorMsg = 'Akses lokasi ditolak. Silakan berikan izin GPS di browser Anda.';
+                }
+                
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Akses Lokasi Gagal',
+                    text: errorMsg,
+                    confirmButtonColor: '#1a6bbf'
+                });
+            },
+            { enableHighAccuracy: true, timeout: 8000 }
+        );
+    });
+}
+
+function getHaversineDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Radius bumi dalam km
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+    const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c; // Jarak dalam km
+}
+
+function deg2rad(deg) {
+    return deg * (Math.PI/180);
 }
 </script>
 

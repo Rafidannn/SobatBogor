@@ -35,23 +35,23 @@
                         </select>
                     </div>
 
-                    <!-- Tiket Masuk Weekday & Weekend -->
+                    <!-- Tiket Masuk Weekday & Weekend / Estimasi Porsi -->
                     <div class="col-md-3 mb-3">
-                        <label for="ticket_price_weekday" class="form-label fw-semibold">Harga Tiket Weekday (Hari Kerja)</label>
+                        <label for="ticket_price_weekday" class="form-label fw-semibold">Harga Tiket / Porsi (Weekday)</label>
                         <div class="input-group">
                             <span class="input-group-text">Rp</span>
                             <input type="number" class="form-control" id="ticket_price_weekday" name="ticket_price_weekday" 
                                    value="<?= htmlspecialchars($destination['ticket_price_weekday'] ?? $destination['ticket_price'] ?? '0') ?>" 
-                                   min="0" placeholder="0 = Gratis">
+                                   min="0" placeholder="0 = Gratis / Mulai">
                         </div>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label for="ticket_price_weekend" class="form-label fw-semibold">Harga Tiket Weekend (Akhir Pekan)</label>
+                        <label for="ticket_price_weekend" class="form-label fw-semibold">Harga Tiket / Porsi (Weekend)</label>
                         <div class="input-group">
                             <span class="input-group-text">Rp</span>
                             <input type="number" class="form-control" id="ticket_price_weekend" name="ticket_price_weekend" 
                                    value="<?= htmlspecialchars($destination['ticket_price_weekend'] ?? $destination['ticket_price'] ?? '0') ?>" 
-                                   min="0" placeholder="0 = Gratis">
+                                   min="0" placeholder="0 = Gratis / Mulai">
                         </div>
                     </div>
                 </div>
@@ -92,6 +92,17 @@
                     <label for="description" class="form-label fw-semibold">Deskripsi Destinasi</label>
                     <textarea class="form-control" id="description" name="description" rows="5" 
                               placeholder="Tulis penjelasan lengkap, fasilitas, rute, atau daya tarik utama..." required><?= htmlspecialchars($destination['description'] ?? '') ?></textarea>
+                </div>
+
+                <!-- Link Video YouTube (Virtual Tour) -->
+                <div class="mb-3">
+                    <label for="video_url" class="form-label fw-semibold">
+                        <i class="fab fa-youtube text-danger me-1"></i> Link Video YouTube (Virtual Tour / Vlog)
+                    </label>
+                    <input type="url" class="form-control" id="video_url" name="video_url" 
+                           value="<?= htmlspecialchars($destination['video_url'] ?? '') ?>" 
+                           placeholder="Contoh: https://www.youtube.com/watch?v=dvm6IKoEvYo">
+                    <div class="form-text">Masukkan URL video YouTube lengkap. Video ini akan ditampilkan sebagai pemutar video virtual tour di halaman detail wisata.</div>
                 </div>
 
                 <!-- Status Trending / Featured -->
@@ -166,20 +177,20 @@
     ?>
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body p-4">
-            <h5 class="fw-bold mb-3"><i class="fa fa-ticket-alt me-2 text-success"></i>Link Tombol "Pesan Tiket"</h5>
+            <h5 class="fw-bold mb-3"><i class="fa fa-external-link-alt me-2 text-success"></i>Link Tombol "Pesan Tiket / Reservasi / Menu"</h5>
             <form action="<?= BASE_URL ?>/admin/destinations/link/save/<?= $destination['id'] ?>" method="POST">
                 <div class="mb-3">
                     <label for="link_label" class="form-label fw-semibold">Teks Tombol</label>
                     <input type="text" class="form-control" id="link_label" name="link_label"
-                           value="<?= htmlspecialchars($existingLink['label'] ?? 'Pesan Tiket') ?>"
-                           placeholder="Contoh: Pesan Tiket, Beli Tiket, Reservasi">
+                           value="<?= htmlspecialchars($existingLink['label'] ?? 'Pesan Tiket / Reservasi') ?>"
+                           placeholder="Contoh: Pesan Tiket, Beli Tiket, Reservasi, Lihat Menu">
                 </div>
                 <div class="mb-3">
                     <label for="link_url" class="form-label fw-semibold">URL Tujuan</label>
                     <input type="url" class="form-control" id="link_url" name="link_url"
                            value="<?= htmlspecialchars($existingLink['url'] ?? '') ?>"
-                           placeholder="https://tiket.com/... atau https://booking-anda.com/...">
-                    <div class="form-text">Isi dengan URL lengkap tempat pemesanan tiket. Kosongkan jika tidak ingin menampilkan tombol.</div>
+                           placeholder="https://...">
+                    <div class="form-text">Isi dengan URL tempat pemesanan tiket / reservasi / menu online. Kosongkan jika tidak ingin menampilkan tombol.</div>
                 </div>
                 <div class="mb-4 form-check form-switch">
                     <input class="form-check-input" type="checkbox" role="switch" id="link_is_active" name="link_is_active" value="1"

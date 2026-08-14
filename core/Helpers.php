@@ -153,3 +153,17 @@ if (!function_exists('getLiveWeather')) {
         return null;
     }
 }
+
+if (!function_exists('getYouTubeVideoId')) {
+    /**
+     * Mengekstrak 11-karakter Video ID dari URL YouTube secara aman
+     */
+    function getYouTubeVideoId(?string $url): ?string {
+        if (empty($url)) return null;
+        $pattern = '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i';
+        if (preg_match($pattern, $url, $matches)) {
+            return $matches[1];
+        }
+        return null;
+    }
+}

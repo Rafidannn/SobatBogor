@@ -9,6 +9,7 @@
 $router->get('/',                   'HomeController@index');
 $router->get('/destinations',       'DestinationController@catalog');
 $router->get('/destinations/{slug}','DestinationController@detail');
+$router->get('/kuliner',            'DestinationController@kuliner');
 $router->get('/hotels',             'HotelController@index');
 $router->get('/hotels/{id}',        'HotelController@detail');
 $router->get('/peta',               'MapController@index');

@@ -466,11 +466,43 @@ img { max-width: 100%; }
     letter-spacing: 0.5px;
 }
 
-/* ── Responsive ──────────────────────────────────────── */
 @media (max-width: 768px) {
     .hero-section { min-height: 75vh; background-attachment: scroll; }
     .hero-title { font-size: 2.2rem; }
     .search-bar-wrapper { flex-wrap: wrap; border-radius: 1rem; padding: 1rem; }
     .search-bar-wrapper input { width: 100%; }
     .destination-gallery .swiper-slide img { height: 250px; }
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* ── Scroll Progress Bar ── */
+.scroll-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary), #fb923c);
+    z-index: 10000;
+    transition: width 0.15s cubic-bezier(0.1, 0.9, 0.2, 1);
+    box-shadow: 0 0 8px rgba(26, 107, 191, 0.45);
+}
+
+/* ── Performance & Interactivity Updates ── */
+.destination-card, .info-card, .filter-card, .review-card, .day-card {
+    will-change: transform, box-shadow;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Springier, premium scale on hover for main buttons */
+.btn-primary-custom, .btn-secondary-custom {
+    will-change: transform, box-shadow;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                background 0.4s ease;
 }

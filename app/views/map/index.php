@@ -54,7 +54,7 @@ function mapFormatPrice($price): string {
     transition: border-color 0.2s;
 }
 .map-search-wrap input:focus {
-    border-color: #ea580c;
+    border-color: #1a6bbf;
 }
 .map-search-wrap .fa-search {
     position: absolute;
@@ -90,15 +90,15 @@ function mapFormatPrice($price): string {
     white-space: nowrap;
 }
 .chip:hover {
-    border-color: #ea580c;
-    color: #ea580c;
-    background: #fff7ed;
+    border-color: #1a6bbf;
+    color: #1a6bbf;
+    background: rgba(26,107,191,0.05);
 }
 .chip.active {
-    background: linear-gradient(135deg, #ea580c, #f97316);
+    background: linear-gradient(135deg, #1a6bbf, #3a9e3a);
     border-color: transparent;
     color: #fff;
-    box-shadow: 0 2px 8px rgba(234,88,12,0.3);
+    box-shadow: 0 2px 8px rgba(26,107,191,0.3);
 }
 .chip.chip-hotel.active {
     background: linear-gradient(135deg, #1a6bbf, #3b82f6);
@@ -126,7 +126,7 @@ function mapFormatPrice($price): string {
     font-weight: 600;
     font-family: 'Outfit', sans-serif;
 }
-.stat-badge.dest  { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+.stat-badge.dest  { background: rgba(26,107,191,0.08); color: #1a6bbf; border: 1px solid rgba(26,107,191,0.2); }
 .stat-badge.hotel { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
 
 /* ── Split Layout ────────────────────────────────────── */
@@ -186,13 +186,13 @@ function mapFormatPrice($price): string {
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 .marker-card:hover {
-    background: #fff7ed;
-    box-shadow: 0 2px 8px rgba(234,88,12,0.1);
+    background: rgba(26,107,191,0.05);
+    box-shadow: 0 2px 8px rgba(26,107,191,0.1);
 }
 .marker-card.highlighted {
-    background: #fff7ed;
-    border-left: 3px solid #ea580c;
-    box-shadow: 0 3px 12px rgba(234,88,12,0.15);
+    background: rgba(26,107,191,0.07);
+    border-left: 3px solid #1a6bbf;
+    box-shadow: 0 3px 12px rgba(26,107,191,0.15);
 }
 .marker-card.hotel-card-item:hover  { background: #eff6ff; box-shadow: 0 2px 8px rgba(26,107,191,0.1); }
 .marker-card.hotel-card-item.highlighted { background: #eff6ff; border-left-color: #1a6bbf; }
@@ -241,7 +241,7 @@ function mapFormatPrice($price): string {
 .mc-price {
     font-size: 0.75rem;
     font-weight: 700;
-    color: #ea580c;
+    color: #1a6bbf;
 }
 .mc-price.hotel { color: #1d4ed8; }
 .mc-category-badge {
@@ -250,8 +250,8 @@ function mapFormatPrice($price): string {
     font-weight: 600;
     padding: 1px 6px;
     border-radius: 50px;
-    background: #fff7ed;
-    color: #c2410c;
+    background: rgba(26,107,191,0.08);
+    color: #1a6bbf;
     margin-bottom: 2px;
 }
 .mc-category-badge.hotel { background: #eff6ff; color: #1d4ed8; }
@@ -264,11 +264,11 @@ function mapFormatPrice($price): string {
 
 /* ── Custom Leaflet Marker Icons ─────────────────────── */
 .custom-marker-dest {
-    background: linear-gradient(135deg, #ea580c, #f97316);
+    background: linear-gradient(135deg, #1a6bbf, #3a9e3a);
     border-radius: 50% 50% 50% 0;
     transform: rotate(-45deg);
     border: 2.5px solid #fff;
-    box-shadow: 0 3px 10px rgba(234,88,12,0.5);
+    box-shadow: 0 3px 10px rgba(26,107,191,0.5);
 }
 .custom-marker-hotel {
     background: linear-gradient(135deg, #1a6bbf, #3b82f6);
@@ -335,7 +335,7 @@ function mapFormatPrice($price): string {
 .popup-card-price {
     font-size: 0.82rem;
     font-weight: 700;
-    color: #ea580c;
+    color: #1a6bbf;
     margin-bottom: 8px;
 }
 .popup-card-price.hotel { color: #1d4ed8; }
@@ -348,7 +348,7 @@ function mapFormatPrice($price): string {
     font-weight: 600;
     text-decoration: none;
     color: #fff;
-    background: linear-gradient(135deg, #ea580c, #f97316);
+    background: linear-gradient(135deg, #1a6bbf, #3a9e3a);
     transition: opacity 0.2s;
 }
 .popup-btn:hover { opacity: 0.88; color: #fff; }
@@ -504,11 +504,11 @@ function makeDestIcon(categoryIcon) {
         className: '',
         html: `<div style="
             width:34px;height:34px;
-            background:linear-gradient(135deg,#ea580c,#f97316);
+            background:linear-gradient(135deg,#1a6bbf,#3a9e3a);
             border-radius:50% 50% 50% 0;
             transform:rotate(-45deg);
             border:2.5px solid #fff;
-            box-shadow:0 4px 12px rgba(234,88,12,0.45);
+            box-shadow:0 4px 12px rgba(26,107,191,0.45);
             display:flex;align-items:center;justify-content:center;">
             <i class='fas fa-${icon}' style='transform:rotate(45deg);color:#fff;font-size:0.65rem;'></i>
         </div>`,
@@ -567,6 +567,9 @@ function buildDestPopup(d) {
                <i class="fas fa-mountain"></i>
            </div>`;
 
+    const isCulinary = (parseInt(d.category_id) === 3 || (d.category_name||'').toLowerCase() === 'kuliner');
+    const priceUnit = isCulinary ? '/ porsi' : '/ orang';
+
     const price = d.ticket_price_weekday
         ? formatRupiah(d.ticket_price_weekday)
         : (d.ticket_price ? formatRupiah(d.ticket_price) : 'Gratis');
@@ -574,12 +577,12 @@ function buildDestPopup(d) {
     return `<div>
         ${img}
         <div class="popup-card-body">
-            <span style="font-size:0.65rem;font-weight:700;color:#c2410c;background:#fff7ed;padding:1px 7px;border-radius:50px;display:inline-block;margin-bottom:4px;">
+            <span style="font-size:0.65rem;font-weight:700;color:#1a6bbf;background:rgba(26,107,191,0.09);padding:1px 7px;border-radius:50px;display:inline-block;margin-bottom:4px;">
                 ${d.category_name || 'Wisata'}
             </span>
             <div class="popup-card-title">${d.name}</div>
-            <div class="popup-card-sub"><i class="fas fa-map-marker-alt" style="color:#ea580c;margin-right:3px;"></i>${(d.address || 'Bogor').split(',')[0]}</div>
-            <div class="popup-card-price">${price} / orang</div>
+            <div class="popup-card-sub"><i class="fas fa-map-marker-alt" style="color:#ef4444;margin-right:3px;"></i>${(d.address || 'Bogor').split(',')[0]}</div>
+            <div class="popup-card-price">${price} ${priceUnit}</div>
             <div style="display:flex;align-items:center;gap:5px;margin-bottom:8px;">
                 ${renderStars(d.avg_rating)}
                 <span style="font-size:0.68rem;color:#64748b;">(${d.review_count})</span>
@@ -692,7 +695,7 @@ function buildSidebar(filteredDest, filteredHotel) {
                     : (d.ticket_price ? formatRupiah(d.ticket_price) : 'Gratis');
         const img = d.primary_image
             ? `<img class="mc-thumb" src="${BASE_URL}/${d.primary_image}" alt="${d.name}">`
-            : `<div class="mc-thumb-placeholder" style="background:linear-gradient(135deg,#fed7aa,#fb923c);">
+            : `<div class="mc-thumb-placeholder" style="background:linear-gradient(135deg,#dbeafe,#1a6bbf);">
                    <i class="fas fa-mountain" style="color:rgba(255,255,255,0.7);"></i>
                </div>`;
         html += `<div class="marker-card" data-id="dest-${d.id}" onclick="focusMarker('dest',${destMarkers.indexOf(m)})">
@@ -700,7 +703,7 @@ function buildSidebar(filteredDest, filteredHotel) {
             <div class="mc-info">
                 <div class="mc-category-badge">${d.category_name || 'Wisata'}</div>
                 <div class="mc-name">${d.name}</div>
-                <div class="mc-sub"><i class="fas fa-map-marker-alt" style="color:#ea580c;"></i> ${(d.address || 'Bogor').split(',')[0]}</div>
+                <div class="mc-sub"><i class="fas fa-map-marker-alt" style="color:#ef4444;"></i> ${(d.address || 'Bogor').split(',')[0]}</div>
                 <div class="mc-price">${price}</div>
             </div>
         </div>`;

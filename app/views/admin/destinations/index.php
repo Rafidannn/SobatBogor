@@ -17,7 +17,7 @@
                             <th>Foto</th>
                             <th>Nama Wisata</th>
                             <th>Kategori</th>
-                            <th style="min-width: 140px;">Harga Tiket</th>
+                            <th style="min-width: 140px;">Harga (Tiket/Porsi)</th>
                             <th>Jam Buka</th>
                             <th>Status</th>
                             <th class="text-end px-4" style="width: 220px;">Aksi</th>

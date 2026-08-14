@@ -31,6 +31,9 @@
 </head>
 <body>
 
+    <!-- Scroll Progress Bar -->
+    <div id="scroll-progress" class="scroll-progress-bar"></div>
+
     <!-- Navbar -->
     <?php require_once ROOT_PATH . '/app/views/partials/navbar.php'; ?>
 
@@ -57,6 +60,19 @@
     <!-- Init AOS -->
     <script>
         AOS.init({ duration: 650, once: true, offset: 80 });
+    </script>
+
+    <script>
+        // Scroll Progress Bar logic
+        window.addEventListener('scroll', () => {
+            const scrollProgress = document.getElementById('scroll-progress');
+            if (scrollProgress) {
+                const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
+                scrollProgress.style.width = scrolled + '%';
+            }
+        }, { passive: true });
     </script>
 
     <!-- Page-specific scripts slot -->

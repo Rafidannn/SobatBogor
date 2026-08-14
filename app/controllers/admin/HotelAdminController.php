@@ -3,6 +3,7 @@ namespace admin;
 
 require_once ROOT_PATH . '/app/models/Hotel.php';
 require_once ROOT_PATH . '/app/models/Destination.php';
+require_once ROOT_PATH . '/middleware/AdminMiddleware.php';
 
 class HotelAdminController
 {
@@ -11,17 +12,9 @@ class HotelAdminController
 
     public function __construct()
     {
-        $this->requireAdmin();
+        \AdminMiddleware::handle();
         $this->hotelModel       = new Hotel();
         $this->destinationModel = new Destination();
-    }
-
-    private function requireAdmin(): void
-    {
-        if (empty($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-            header('Location: ' . BASE_URL . '/login');
-            exit;
-        }
     }
 
     /** Admin: List all hotels */
@@ -118,6 +111,7 @@ class HotelAdminController
             'image_path'     => $imagePath,
             'traveloka_url'  => trim($_POST['traveloka_url'] ?? ''),
             'booking_url'    => trim($_POST['booking_url'] ?? ''),
+            'video_url'      => trim($_POST['video_url'] ?? ''),
             'is_active'      => isset($_POST['is_active']) ? 1 : 0,
         ];
     }

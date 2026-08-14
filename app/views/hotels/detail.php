@@ -89,6 +89,22 @@
             </div>
             <?php endif; ?>
 
+            <!-- Virtual Tour (Video) -->
+            <?php if (!empty($hotel['video_url'])): ?>
+            <?php $videoId = getYouTubeVideoId($hotel['video_url']); ?>
+            <?php if ($videoId): ?>
+            <div class="card border-0 shadow-sm mb-4 p-4" style="border-radius:16px;">
+                <h3 class="h5 fw-bold mb-3"><i class="fab fa-youtube text-danger me-2"></i>Virtual Tour & Ulasan Hotel</h3>
+                <div class="ratio ratio-16x9 overflow-hidden rounded-3 shadow-sm">
+                    <iframe src="https://www.youtube.com/embed/<?= htmlspecialchars($videoId) ?>" 
+                            title="Virtual Tour Hotel" 
+                            allowfullscreen 
+                            style="border:0;"></iframe>
+                </div>
+            </div>
+            <?php endif; ?>
+            <?php endif; ?>
+
             <!-- Location Map -->
             <?php if ($hotel['latitude'] && $hotel['longitude']): ?>
             <div class="card border-0 shadow-sm p-4" style="border-radius:16px;">

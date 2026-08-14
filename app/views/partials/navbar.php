@@ -45,6 +45,12 @@ $userName    = $_SESSION['user_name'] ?? '';
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link <?= str_starts_with($currentPath, '/kuliner') ? 'active' : '' ?>"
+                       href="<?= BASE_URL ?>/kuliner">
+                        <i class="fas fa-utensils me-1 d-lg-none"></i>Kuliner
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link <?= str_starts_with($currentPath, '/hotels') ? 'active' : '' ?>"
                        href="<?= BASE_URL ?>/hotels">
                         <i class="fas fa-hotel me-1 d-lg-none"></i>Penginapan

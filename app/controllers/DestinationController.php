@@ -49,6 +49,9 @@ class DestinationController extends Controller {
                 $where[]    = "d.category_id = :cat_id";
                 $params[':cat_id'] = $categoryId;
             }
+        } else {
+            // Jika tanpa filter kategori di katalog umum Wisata, kecualikan Kuliner (ID 3)
+            $where[] = "d.category_id != 3";
         }
 
         if ($minPrice > 0) {
@@ -108,6 +111,77 @@ class DestinationController extends Controller {
             'search'       => $search,
             'catSlug'      => $catSlug,
             'sort'         => $sort,
+        ]);
+    }
+
+    /**
+     * GET /kuliner
+     * Menampilkan katalog khusus kuliner khas Bogor.
+     */
+    public function kuliner(): void {
+        $db             = Database::getInstance()->getConnection();
+        $categoryModel  = new Category();
+
+        $search   = trim($_GET['q']    ?? '');
+        $sort     = trim($_GET['sort'] ?? 'terbaru');
+
+        $where  = ["d.category_id = 3"];
+        $params = [];
+
+        if ($search !== '') {
+            $where[]  = "(d.name LIKE :q1 OR d.address LIKE :q2 OR d.description LIKE :q3)";
+            $params[':q1'] = "%{$search}%";
+            $params[':q2'] = "%{$search}%";
+            $params[':q3'] = "%{$search}%";
+        }
+
+        $whereClause = 'WHERE ' . implode(' AND ', $where);
+
+        $orderMap = [
+            'terbaru'    => 'd.id DESC',
+            'terlama'    => 'd.id ASC',
+            'rating'     => 'avg_rating DESC',
+            'harga_asc'  => 'd.ticket_price ASC',
+            'harga_desc' => 'd.ticket_price DESC',
+            'nama'       => 'd.name ASC',
+        ];
+        $orderBy = $orderMap[$sort] ?? 'd.id DESC';
+
+        $sql = "SELECT d.*, c.name AS category_name,
+                       (SELECT image_path FROM destination_images
+                        WHERE destination_id = d.id AND is_primary = 1 LIMIT 1) AS primary_image,
+                       COALESCE((SELECT ROUND(AVG(rating),1) FROM reviews
+                                 WHERE destination_id = d.id AND is_visible = 1), 0) AS avg_rating,
+                       (SELECT COUNT(*) FROM reviews
+                        WHERE destination_id = d.id AND is_visible = 1) AS review_count
+                FROM destinations d
+                LEFT JOIN categories c ON d.category_id = c.id
+                {$whereClause}
+                ORDER BY {$orderBy}";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        $destinations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $categories = $categoryModel->getCategoriesWithCount();
+
+        $wishlistIds = [];
+        if (isset($_SESSION['user_id'])) {
+            $wStmt = $db->prepare("SELECT destination_id FROM wishlists WHERE user_id = ?");
+            $wStmt->execute([$_SESSION['user_id']]);
+            $wishlistIds = array_column($wStmt->fetchAll(PDO::FETCH_ASSOC), 'destination_id');
+        }
+
+        $this->view('destinations/catalog', [
+            'title'        => 'Wisata Kuliner Bogor — Tempat Makan Khas & Legendaris',
+            'metaDesc'     => 'Jelajahi hidangan lezat, tempat makan legendaris, dan restoran khas Sunda terbaik di Bogor.',
+            'destinations' => $destinations,
+            'categories'   => $categories,
+            'wishlistIds'  => $wishlistIds,
+            'search'       => $search,
+            'catSlug'      => 'kuliner',
+            'sort'         => $sort,
+            'isKulinerPage'=> true
         ]);
     }
 

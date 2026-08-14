@@ -143,6 +143,16 @@
                            placeholder="https://www.booking.com/...">
                 </div>
 
+                <!-- Link Video YouTube -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small">
+                        <i class="fab fa-youtube me-1 text-danger"></i>Link Video YouTube (Virtual Tour)
+                    </label>
+                    <input type="url" name="video_url" class="form-control"
+                           value="<?= htmlspecialchars($hotel['video_url'] ?? '') ?>"
+                           placeholder="https://www.youtube.com/watch?v=...">
+                </div>
+
                 <!-- Status Aktif -->
                 <div class="mb-4">
                     <div class="form-check form-switch">
