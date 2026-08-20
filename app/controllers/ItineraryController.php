@@ -7,48 +7,51 @@ require_once ROOT_PATH . '/app/models/Category.php';
  * ItineraryController.php
  * Menangani fitur Smart Itinerary Planner (Perencana Rencana Perjalanan Otomatis)
  */
-class ItineraryController extends Controller {
+class ItineraryController extends Controller
+{
 
-    public function index(): void {
-        $db            = Database::getInstance()->getConnection();
+    public function index(): void
+    {
+        $db = Database::getInstance()->getConnection();
         $categoryModel = new Category();
 
         $categories = $categoryModel->getCategoriesWithCount();
 
         // Parameter input
-        $duration   = isset($_GET['duration']) ? (int)$_GET['duration'] : 1; // 1, 2, 3 hari
-        $duration   = in_array($duration, [1, 2, 3]) ? $duration : 1;
-        
-        $budget     = trim($_GET['budget'] ?? 'standar'); // 'ekonomis', 'standar', 'mewah'
-        $budget     = in_array($budget, ['ekonomis', 'standar', 'mewah']) ? $budget : 'standar';
-        
-        $selectedCats = isset($_GET['categories']) && is_array($_GET['categories']) 
-                        ? array_map('trim', $_GET['categories']) 
-                        : [];
+        $duration = isset($_GET['duration']) ? (int) $_GET['duration'] : 1; // 1, 2, 3 hari
+        $duration = in_array($duration, [1, 2, 3]) ? $duration : 1;
+
+        $budget = trim($_GET['budget'] ?? 'standar'); // 'ekonomis', 'standar', 'mewah'
+        $budget = in_array($budget, ['ekonomis', 'standar', 'mewah']) ? $budget : 'standar';
+
+        $selectedCats = isset($_GET['categories']) && is_array($_GET['categories'])
+            ? array_map('trim', $_GET['categories'])
+            : [];
 
         $hasGenerated = isset($_GET['generate']) && $_GET['generate'] == '1';
-        $itinerary    = null;
+        $itinerary = null;
 
         if ($hasGenerated) {
             $itinerary = $this->generateItinerary($db, $duration, $budget, $selectedCats);
         }
 
         $this->view('itinerary/index', [
-            'title'        => 'Smart Itinerary Planner - Perencana Liburan Bogor',
-            'metaDesc'     => 'Buat rencana liburan otomatis ke Bogor sesuai durasi, preferensi tempat wisata, dan budget kamu.',
-            'categories'   => $categories,
-            'duration'     => $duration,
-            'budget'       => $budget,
+            'title' => 'Smart Itinerary Planner - Perencana Liburan Bogor',
+            'metaDesc' => 'Buat rencana liburan otomatis ke Bogor sesuai durasi, preferensi tempat wisata, dan budget kamu.',
+            'categories' => $categories,
+            'duration' => $duration,
+            'budget' => $budget,
             'selectedCats' => $selectedCats,
             'hasGenerated' => $hasGenerated,
-            'itinerary'    => $itinerary,
+            'itinerary' => $itinerary,
         ]);
     }
 
     /**
      * Algoritma penyusunan jadwal perjalanan berdasarkan kriteria
      */
-    private function generateItinerary(PDO $db, int $duration, string $budget, array $selectedCatSlugs): array {
+    private function generateItinerary(PDO $db, int $duration, string $budget, array $selectedCatSlugs): array
+    {
         // Build base SQL filter
         $where = [];
         $params = [];
@@ -94,20 +97,28 @@ class ItineraryController extends Controller {
 
         // Fallback kedua: jika masih kurang (misal DB benar-benar kosong), kembalikan array kosong aman
         if (empty($allDestinations)) {
-            return ['days' => [], 'duration' => $duration, 'budget_tier' => $budget,
-                    'total_ticket' => 0, 'total_hotel' => 0, 'total_meal' => 0, 'grand_total' => 0];
+            return [
+                'days' => [],
+                'duration' => $duration,
+                'budget_tier' => $budget,
+                'total_ticket' => 0,
+                'total_hotel' => 0,
+                'total_meal' => 0,
+                'grand_total' => 0
+            ];
         }
 
         // Pisahkan kategori kuliner dan non-kuliner jika ada
-        $culinaryDestinations = array_values(array_filter($allDestinations, function($d) {
+        $culinaryDestinations = array_values(array_filter($allDestinations, function ($d) {
             return str_contains(strtolower($d['category_name'] ?? ''), 'kuliner') || str_contains(strtolower($d['name']), 'resto') || str_contains(strtolower($d['name']), 'soto') || str_contains(strtolower($d['name']), 'cafe');
         }));
-        
-        $sightseeingDestinations = array_values(array_filter($allDestinations, function($d) {
+
+        $sightseeingDestinations = array_values(array_filter($allDestinations, function ($d) {
             return !str_contains(strtolower($d['category_name'] ?? ''), 'kuliner');
         }));
 
-        if (empty($sightseeingDestinations)) $sightseeingDestinations = $allDestinations;
+        if (empty($sightseeingDestinations))
+            $sightseeingDestinations = $allDestinations;
 
         // Ambil data hotel jika durasi > 1
         $hotels = [];
@@ -135,16 +146,18 @@ class ItineraryController extends Controller {
         $days = [];
         $usedDestIds = [];
         $totalTicketCost = 0;
-        $totalHotelCost  = 0;
+        $totalHotelCost = 0;
 
         for ($dayNum = 1; $dayNum <= $duration; $dayNum++) {
             // Ambil destinasi Pagi
             $pagi = $this->pickUnused($sightseeingDestinations, $usedDestIds);
-            if ($pagi) $usedDestIds[] = $pagi['id'];
+            if ($pagi)
+                $usedDestIds[] = $pagi['id'];
 
             // Ambil destinasi Sore
             $sore = $this->pickUnused($sightseeingDestinations, $usedDestIds);
-            if ($sore) $usedDestIds[] = $sore['id'];
+            if ($sore)
+                $usedDestIds[] = $sore['id'];
 
             // Ambil rekomendasi Kuliner Siang
             $kuliner = $this->pickUnused($culinaryDestinations, $usedDestIds);
@@ -153,43 +166,44 @@ class ItineraryController extends Controller {
             }
 
             // Hitung tiket
-            $pagiPrice = (float)($pagi['ticket_price_weekday'] ?? $pagi['ticket_price'] ?? 0);
-            $sorePrice = (float)($sore['ticket_price_weekday'] ?? $sore['ticket_price'] ?? 0);
+            $pagiPrice = (float) ($pagi['ticket_price_weekday'] ?? $pagi['ticket_price'] ?? 0);
+            $sorePrice = (float) ($sore['ticket_price_weekday'] ?? $sore['ticket_price'] ?? 0);
             $totalTicketCost += ($pagiPrice + $sorePrice);
 
             // Hotel malam (jika belum hari terakhir)
             $hotelMalam = null;
             if ($dayNum < $duration && !empty($hotels)) {
                 $hotelMalam = $hotels[($dayNum - 1) % count($hotels)];
-                $totalHotelCost += (float)$hotelMalam['price_start'];
+                $totalHotelCost += (float) $hotelMalam['price_start'];
             }
 
             $days[] = [
                 'day_number' => $dayNum,
-                'pagi'       => $pagi,
-                'kuliner'    => $kuliner,
-                'sore'       => $sore,
-                'hotel'      => $hotelMalam,
+                'pagi' => $pagi,
+                'kuliner' => $kuliner,
+                'sore' => $sore,
+                'hotel' => $hotelMalam,
             ];
         }
 
         // Estimasi biaya makan per hari: Rp 75.000 / hari (ekonomis), Rp 150.000 / hari (standar), Rp 300.000 / hari (mewah)
         $mealCostPerDay = ($budget === 'ekonomis') ? 75000 : (($budget === 'standar') ? 150000 : 300000);
-        $totalMealCost  = $mealCostPerDay * $duration;
-        $grandTotal     = $totalTicketCost + $totalHotelCost + $totalMealCost;
+        $totalMealCost = $mealCostPerDay * $duration;
+        $grandTotal = $totalTicketCost + $totalHotelCost + $totalMealCost;
 
         return [
-            'days'             => $days,
-            'duration'         => $duration,
-            'budget_tier'      => $budget,
-            'total_ticket'     => $totalTicketCost,
-            'total_hotel'      => $totalHotelCost,
-            'total_meal'       => $totalMealCost,
-            'grand_total'      => $grandTotal,
+            'days' => $days,
+            'duration' => $duration,
+            'budget_tier' => $budget,
+            'total_ticket' => $totalTicketCost,
+            'total_hotel' => $totalHotelCost,
+            'total_meal' => $totalMealCost,
+            'grand_total' => $grandTotal,
         ];
     }
 
-    private function pickUnused(array $items, array $usedIds): ?array {
+    private function pickUnused(array $items, array $usedIds): ?array
+    {
         // Nilai array agar bisa pakai array_rand
         $items = array_values($items);
         foreach ($items as $item) {
